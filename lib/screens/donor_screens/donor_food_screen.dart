@@ -182,18 +182,15 @@ class _DonorFoodScreenState extends State<DonorFoodScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              "ashram_name",
-                              // widget.donorData['ashram_name'],
+                              widget.donorData['ashram_name'],
                               style: TextStyle(
                                 fontSize: listHeadingSize,
                                 fontFamily: listHeadingFont,
                                 color: gBlackColor,
                               ),
                             ),
-                            SizedBox(height: 0.5.h),
                             Text(
-                              "Meal for 25 people",
-                              // "Meal for ${widget.donorData['meal_request']} people",
+                              "Meal for ${widget.donorData['meal_request']} people",
                               style: TextStyle(
                                 fontSize: listSubHeadingSize,
                                 height: 1.3,
@@ -203,8 +200,7 @@ class _DonorFoodScreenState extends State<DonorFoodScreen> {
                             ),
                             SizedBox(height: 0.5.h),
                             Text(
-                              "Lorem lpsum address",
-                              // widget.donorData['address'],
+                              widget.donorData['address'],
                               style: TextStyle(
                                 fontSize: listOtherSize,
                                 height: 1.3,
@@ -241,8 +237,7 @@ class _DonorFoodScreenState extends State<DonorFoodScreen> {
                                       color: gBlackColor,
                                     ),
                                     Text(
-                                      "Posted at 04 : 00 PM",
-                                      // "Posted at ${DateFormat.jm().format(DateTime.parse(widget.donorData['created_at']))}",
+                                      "Posted at ${DateFormat.jm().format(DateTime.parse(widget.donorData['created_at']))}",
                                       style: TextStyle(
                                         fontSize: listOtherSize,
                                         fontFamily: listOtherFont,
@@ -805,17 +800,17 @@ class _DonorFoodScreenState extends State<DonorFoodScreen> {
                                           .text.isNotEmpty &&
                                       specialInstructionsController
                                           .text.isNotEmpty) {
-                                    // submitDonateFood(
-                                    //   widget.donorData['id'],
-                                    //   foodItemsController.text.trim(),
-                                    //   foodQuantityController.text.trim(),
-                                    //   cookingDateController.text.trim(),
-                                    //   cookingTimeController.text.trim(),
-                                    //   pickupTimeController.text.trim(),
-                                    //   expectationDateController.text.trim(),
-                                    //   expectationTimeController.text.trim(),
-                                    //   specialInstructionsController.text.trim(),
-                                    // );
+                                    submitDonateFood(
+                                      widget.donorData['id'],
+                                      foodItemsController.text.trim(),
+                                      foodQuantityController.text.trim(),
+                                      cookingDateController.text.trim(),
+                                      cookingTimeController.text.trim(),
+                                      pickupTimeController.text.trim(),
+                                      expectationDateController.text.trim(),
+                                      expectationTimeController.text.trim(),
+                                      specialInstructionsController.text.trim(),
+                                    );
                                   }
                                 }
                               },

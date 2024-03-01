@@ -768,55 +768,48 @@ class _LoginScreenState extends State<LoginScreen> {
     setState(() {
       isLoading = true;
     });
-      _pref.setBool(AppConfig.isLogin, true);
+    print("---------Login---------");
 
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(
-        builder: (context) => const DashboardScreen(),
-      ),
+    final result = await loginRegistrationService.loginRegistrationService(
+      // "thanraj@gmail.com",
+      // "Than@123",
+      email,
+      pwd,
     );
-    // print("---------Login---------");
-    //
-    // final result = await loginRegistrationService.loginRegistrationService(
-    //   // "thanraj@gmail.com",
-    //   // "Than@123",
-    //   email,
-    //   pwd,
-    // );
-    //
-    // if (result.runtimeType == AuthResponse) {
-    //   AuthResponse model = result as AuthResponse;
-    //
-    //   print(model);
-    //
-    //   setState(() {
-    //     isLoading = false;
-    //   });
-    //
-    //   storeUserProfile();
-    //
-    //   _pref.setBool(AppConfig.isLogin, true);
-    //   _pref.setInt(AppConfig.last_login, DateTime.now().millisecondsSinceEpoch);
-    //
-    //   Navigator.of(context).pushReplacement(
-    //     MaterialPageRoute(
-    //       builder: (context) => const DashboardScreen(),
-    //     ),
-    //   );
-    // } else {
-    //   setState(() {
-    //     isLoading = false;
-    //   });
-    //   _pref.setBool(AppConfig.isLogin, false);
-    //
-    //   ErrorModel response = result as ErrorModel;
-    //   AppConfig().showSnackbar(context, response.message!, isError: true);
-    //   // Navigator.of(context).pushReplacement(
-    //   //   MaterialPageRoute(
-    //   //     builder: (context) => const DashboardScreen(),
-    //   //   ),
-    //   // );
-    // }
+
+    if (result.runtimeType == AuthResponse) {
+      AuthResponse model = result as AuthResponse;
+
+      print(model);
+
+      setState(() {
+        isLoading = false;
+      });
+
+      storeUserProfile();
+
+      _pref.setBool(AppConfig.isLogin, true);
+      _pref.setInt(AppConfig.last_login, DateTime.now().millisecondsSinceEpoch);
+
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (context) => const DashboardScreen(),
+        ),
+      );
+    } else {
+      setState(() {
+        isLoading = false;
+      });
+      _pref.setBool(AppConfig.isLogin, false);
+
+      ErrorModel response = result as ErrorModel;
+      AppConfig().showSnackbar(context, response.message!, isError: true);
+      // Navigator.of(context).pushReplacement(
+      //   MaterialPageRoute(
+      //     builder: (context) => const DashboardScreen(),
+      //   ),
+      // );
+    }
   }
 
   void storeUserProfile() async {

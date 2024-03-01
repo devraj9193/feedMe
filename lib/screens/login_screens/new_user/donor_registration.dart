@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_sizer/flutter_sizer.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../main.dart';
 import '../../../utils/app_config.dart';
@@ -395,7 +396,7 @@ class _DonorRegistrationState extends State<DonorRegistration> {
                   color: textFieldColor,
                 ),
                 onChanged: (v) {
-                  restaurantNameController.text = v.toString() ?? '';
+                  restaurantNameController.text = v.toString();
                 },
                 decoration: InputDecoration(
                   hintStyle: TextStyle(
@@ -513,7 +514,7 @@ class _DonorRegistrationState extends State<DonorRegistration> {
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 5.h),
               child: ElevatedButton(
-                onPressed: isLoading ? null : () async {
+                onPressed: isLoading ? null : () {
                   if (firstNameFormKey.currentState!.validate() &&
                       lastNameFormKey.currentState!.validate() &&
                       emailFormKey.currentState!.validate() &&
@@ -525,26 +526,18 @@ class _DonorRegistrationState extends State<DonorRegistration> {
                         emailController.text.isNotEmpty &&
                         idProofController.text.isNotEmpty) {
 
-                      Navigator.of(context).pushReplacement(
-                        MaterialPageRoute(
-                          builder: (context) => const FeedMeScreen()),
-
+                      donorRegistration(
+                           firstNameController.text.trim(),
+                   lastNameController.text.trim(),
+                   emailController.text.trim(),
+                   passwordController.text.trim(),
+                   restaurantNameController.text.trim(),
+                   idProofController.text.trim(),
+                   'Donor',
                       );
 
-                      // final response = await supabase.from('users').insert({
-                      //   'f_name': firstNameController.text.trim(),
-                      //   'l_name': lastNameController.text.trim(),
-                      //   'email': emailController.text.trim(),
-                      //   'password': passwordController.text.trim(),
-                      //   'res_name': restaurantNameController.text.trim(),
-                      //   'id_proof_number': idProofController.text.trim(),
-                      //   'user_type': 'Donor',
-                      //   // 'location':locationController.text.trim(),
-                      // });
-                      //
-                      // print("response : ${response.runtimeType}");
-                       }
-                     }
+                      }
+                    }
                 },
                 style: ElevatedButton.styleFrom(
                   foregroundColor:
@@ -578,6 +571,53 @@ class _DonorRegistrationState extends State<DonorRegistration> {
     return RegExp(
             r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
         .hasMatch(email);
+  }
+
+  void donorRegistration(
+      String fName,
+      String lName,
+      String email,
+      String password,
+      String resName,
+      String idProofNumber,
+      String userType,
+      ) async {
+    setState(() {
+      isLoading = true;
+    });
+
+    try {
+
+      final res = await supabase.from('users').insert({
+        'f_name': fName,
+        'l_name': lName,
+        'email': email,
+        'password': password,
+        'res_name': resName,
+        'id_proof_number': idProofNumber,
+        'user_type': userType,
+        // 'location':locationController.text.trim(),
+      });
+
+      print("response : ${res.runtimeType}");
+
+    } on PostgrestException catch (error) {
+      AppConfig().showSnackbar(context, error.message, isError: true);
+    } catch (error) {
+      AppConfig()
+          .showSnackbar(context, 'Unexpected error occurred', isError: true);
+    } finally {
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (context) => const FeedMeScreen(),
+        ),
+      );
+    }
   }
 }
 

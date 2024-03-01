@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_sizer/flutter_sizer.dart';
 import 'package:google_maps_place_picker_mb/google_maps_place_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../main.dart';
 import '../../../utils/app_config.dart';
@@ -763,25 +764,35 @@ class _VolunteerRegistrationState extends State<VolunteerRegistration> {
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 5.h),
               child: ElevatedButton(
-                onPressed: () async {
-                  Navigator.of(context).pushReplacement(
-                    MaterialPageRoute(
-                        builder: (context) => const FeedMeScreen()),
+                onPressed: isLoading ? null : () {
+                  if (firstNameFormKey.currentState!.validate() &&
+                      lastNameFormKey.currentState!.validate() &&
+                      emailFormKey.currentState!.validate() &&
+                      pwdFormKey.currentState!.validate() &&
+                      ageFormKey.currentState!.validate() &&
+                      genderFormKey.currentState!.validate() &&
+                      idProofFormKey.currentState!.validate()) {
+                    if (firstNameController.text.isNotEmpty &&
+                        lastNameController.text.isNotEmpty &&
+                        passwordController.text.isNotEmpty &&
+                        emailController.text.isNotEmpty &&
+                        ageController.text.isNotEmpty &&
+                        genderController.text.isNotEmpty &&
+                        idProofController.text.isNotEmpty) {
 
-                  );
-                 // final response = await supabase.from('users').insert({
-                 //    'f_name': firstNameController.text.trim(),
-                 //    'l_name': lastNameController.text.trim(),
-                 //    'email': emailController.text.trim(),
-                 //    'password': passwordController.text.trim(),
-                 //    'age': ageController.text.trim(),
-                 //    'gender': genderController.text.trim(),
-                 //    'id_proof_number': idProofController.text.trim(),
-                 //   'user_type': 'Volunteer',
-                 //    // 'location':locationController.text.trim(),
-                 //  });
-                 //
-                 //  print("response : ${response.runtimeType}");
+                      volunteerRegistration(
+                        firstNameController.text.trim(),
+                        lastNameController.text.trim(),
+                        emailController.text.trim(),
+                        passwordController.text.trim(),
+                        ageController.text.trim(),
+                        genderController.text.trim(),
+                        idProofController.text.trim(),
+                        'Volunteer',
+                      );
+
+                    }
+                  }
                 },
                 style: ElevatedButton.styleFrom(
                   foregroundColor:
@@ -843,5 +854,54 @@ class _VolunteerRegistrationState extends State<VolunteerRegistration> {
         ],
       ),
     );
+  }
+
+  void volunteerRegistration(
+      String fName,
+      String lName,
+      String email,
+      String password,
+      String age,
+      String gender,
+      String idProofNumber,
+      String userType,
+      ) async {
+    setState(() {
+      isLoading = true;
+    });
+
+    try {
+
+      final res = await supabase.from('users').insert({
+        'f_name': fName,
+        'l_name': lName,
+        'email': email,
+        'password': password,
+        'age': age,
+        'gender': gender,
+        'id_proof_number': idProofNumber,
+        'user_type': 'Volunteer',
+        // 'location':locationController.text.trim(),
+      });
+
+      print("response : ${res.runtimeType}");
+
+    } on PostgrestException catch (error) {
+      AppConfig().showSnackbar(context, error.message, isError: true);
+    } catch (error) {
+      AppConfig()
+          .showSnackbar(context, 'Unexpected error occurred', isError: true);
+    } finally {
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (context) => const FeedMeScreen(),
+        ),
+      );
+    }
   }
 }
