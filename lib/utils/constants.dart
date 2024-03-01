@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_sizer/flutter_sizer.dart';
 
-var bottomBarHeading = 08.dp;
+var bottomBarHeading = 10.dp;
 var loginHeading = 20.dp;
 var buttonFontSize = 10.dp;
 var backButton = 10.dp;
@@ -40,6 +40,8 @@ String listHeadingFont = kFontBold;
 String listSubHeadingFont = kFontMedium;
 String listOtherFont = kFontBook;
 String tapFont = kFontMedium;
+
+const appPrimaryColor = Color(0xffFF6505);
 
 const textFieldColor = gBlackColor;
 const textFieldHintColor = gGreyColor;

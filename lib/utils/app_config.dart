@@ -19,6 +19,8 @@ class AppConfig{
   static const String androidAppURL = "https://play.google.com/store/apps/details?id=com.fembuddy.gwc_customer";
   static const String iosAppURL = "https://play.google.com/store/apps/details?id=com.fembuddy.gwc_customer";
 
+  static const String supabaseUrl = 'https://qvmongfaqxkvoskrguur.supabase.co';
+  static const String supabaseApiKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF2bW9uZ2ZhcXhrdm9za3JndXVyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MDc1NTE2MDksImV4cCI6MjAyMzEyNzYwOX0.Wo_ipFqhoHcijLSKRA6AGy6LMxEA2P9oaiWFViJhFu0';
 
   SharedPreferences? preferences;
 
@@ -51,10 +53,16 @@ class AppConfig{
 
   static const String FCM_TOKEN = "fcm";
 
-  static const String IS_LOGIN = "is_login";
+  static const String isLogin = "is_login";
   static const String last_login = "last_login";
 
-  static const String User_Name = "userName";
+  static const String userName = "userName";
+  static const String userEmail = "userEmail";
+  static const String userType = "userType";
+  static const String userRestaurant = "userRestaurant";
+  static const String userAddress = "userAddress";
+
+
   static const String User_Profile = "profile_pic";
   static const String User_Phone = "userPhone";
   final String deviceId = "deviceId";
@@ -68,6 +76,10 @@ static const String googleApiKey = 'AIzaSyAIGJ_QozQyxJaqGgqEZ0E69_dKOIwkkHU';
   static String slotErrorText = "Slots Not Available Please select different day";
   static String networkErrorText = "No Internet. Please Check Your Network Connection";
   static String oopsMessage = "OOps ! Something went wrong.";
+
+  static String supabaseUserId = "supabase_user_id";
+  static const String getSupabaseSession = 'get_supabase_session';
+  static const String isSupabaseLogin = 'is_supabase_login';
 
 
   showSnackbar(BuildContext context, String message,{int? duration, bool? isError, SnackBarAction? action, double? bottomPadding}){

@@ -1,4 +1,3 @@
-import 'package:awesome_bottom_bar/awesome_bottom_bar.dart';
 import 'package:feed_me/screens/community_screens/community_screen.dart';
 import 'package:feed_me/screens/home_screens/home_screen.dart';
 import 'package:feed_me/screens/location_screens/location_screen.dart';
@@ -22,26 +21,41 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   final int savePrevIndex = 0;
 
-  List<TabItem> items = [
-    const TabItem(
-      icon: Icons.home,
-      title: 'Home',
+  List<BottomNavigationBarItem> items = [
+    BottomNavigationBarItem(
+      icon: Icon(
+        Icons.home,
+        size: 3.h,
+      ),
+      label: 'Home',
     ),
-    const TabItem(
-      icon: Icons.groups,
-      title: 'Community',
+    BottomNavigationBarItem(
+      icon: Icon(
+        Icons.groups,
+        size: 3.h,
+      ),
+      label: 'Community',
     ),
-    const TabItem(
-      icon: Icons.pin_drop_outlined,
-      title: 'Location',
+    BottomNavigationBarItem(
+      icon: Icon(
+        Icons.pin_drop_outlined,
+        size: 3.h,
+      ),
+      label: 'Location',
     ),
-    const TabItem(
-      icon: Icons.notifications_active_outlined,
-      title: 'Notifications',
+    BottomNavigationBarItem(
+      icon: Icon(
+        Icons.notifications_active_outlined,
+        size: 3.h,
+      ),
+      label: 'Notifications',
     ),
-    const TabItem(
-      icon: Icons.manage_accounts_outlined,
-      title: 'profile',
+    BottomNavigationBarItem(
+      icon: Icon(
+        Icons.manage_accounts_outlined,
+        size: 3.h,
+      ),
+      label: 'profile',
     ),
   ];
 
@@ -76,19 +90,34 @@ class _DashboardScreenState extends State<DashboardScreen> {
       onWillPop: _onWillPop,
       child: Scaffold(
         body: pageCaller(_bottomNavIndex),
-        bottomNavigationBar: BottomBarDefault(
-          items: items,
-          backgroundColor: gWhiteColor,
-          color: gBlackColor,
-          colorSelected: gSecondaryColor,
-          indexSelected: _bottomNavIndex,
-          paddingVertical: 25,
+        bottomNavigationBar: BottomNavigationBar(
+          showUnselectedLabels: false,
+          selectedFontSize: bottomBarHeading,
+          selectedItemColor: appPrimaryColor,
+          iconSize: 2.5.h,
+          currentIndex: _bottomNavIndex,
           onTap: onChangedTab,
-          titleStyle: TextStyle(
+          type: BottomNavigationBarType.fixed,
+          selectedLabelStyle: TextStyle(
             fontSize: bottomBarHeading,
             fontFamily: kFontMedium,
+            color: gBlackColor,
           ),
+          items: items,
         ),
+        // bottomNavigationBar: BottomBarDefault(
+        //   items: items,
+        //   backgroundColor: gWhiteColor,
+        //   color: gBlackColor,
+        //   colorSelected: gSecondaryColor,
+        //   indexSelected: _bottomNavIndex,
+        //   paddingVertical: 25,
+        //   onTap: onChangedTab,
+        //   titleStyle: TextStyle(
+        //     fontSize: bottomBarHeading,
+        //     fontFamily: kFontMedium,
+        //   ),
+        // ),
       ),
     );
   }

@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_sizer/flutter_sizer.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../main.dart';
 import '../../../utils/app_config.dart';
 import '../../../utils/constants.dart';
 import '../../../utils/widgets/widgets.dart';
@@ -19,8 +20,10 @@ class DonorRegistration extends StatefulWidget {
 class _DonorRegistrationState extends State<DonorRegistration> {
   final formKey = GlobalKey<FormState>();
 
-  final nameFormKey = GlobalKey<FormState>();
+  final firstNameFormKey = GlobalKey<FormState>();
+  final lastNameFormKey = GlobalKey<FormState>();
   final emailFormKey = GlobalKey<FormState>();
+  final pwdFormKey = GlobalKey<FormState>();
   final restaurantsNameFormKey = GlobalKey<FormState>();
   final locationFormKey = GlobalKey<FormState>();
   final idProofFormKey = GlobalKey<FormState>();
@@ -30,6 +33,7 @@ class _DonorRegistrationState extends State<DonorRegistration> {
   String? deviceId, fcmToken;
 
   bool isLoading = false;
+  late bool passwordVisibility;
 
   late FocusNode _nameFocus,
       _emailFocus,
@@ -37,8 +41,10 @@ class _DonorRegistrationState extends State<DonorRegistration> {
       _locationFocus,
       _idProofFocus;
 
-  TextEditingController nameController = TextEditingController();
+  TextEditingController firstNameController = TextEditingController();
+  TextEditingController lastNameController = TextEditingController();
   TextEditingController emailController = TextEditingController();
+  TextEditingController passwordController = TextEditingController();
   TextEditingController restaurantNameController = TextEditingController();
   TextEditingController locationController = TextEditingController();
   TextEditingController idProofController = TextEditingController();
@@ -49,11 +55,18 @@ class _DonorRegistrationState extends State<DonorRegistration> {
   void initState() {
     super.initState();
     _nameFocus = FocusNode();
+    passwordVisibility = false;
     _nameFocus.addListener(() {});
     emailController.addListener(() {
       setState(() {});
     });
-    nameController.addListener(() {
+    firstNameController.addListener(() {
+      setState(() {});
+    });
+    lastNameController.addListener(() {
+      setState(() {});
+    });
+    passwordController.addListener(() {
       setState(() {});
     });
     restaurantNameController.addListener(() {
@@ -81,8 +94,10 @@ class _DonorRegistrationState extends State<DonorRegistration> {
   @override
   void dispose() {
     _nameFocus.removeListener(() {});
-    nameController.removeListener(() {});
+    firstNameController.removeListener(() {});
+    lastNameController.removeListener(() {});
     emailController.removeListener(() {});
+    passwordController.removeListener(() { });
     restaurantNameController.removeListener(() {});
     locationController.removeListener(() {});
     idProofController.removeListener(() {});
@@ -149,13 +164,13 @@ class _DonorRegistrationState extends State<DonorRegistration> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            buildTextFieldHeading("Name"),
+            buildTextFieldHeading("First Name"),
             Form(
               autovalidateMode: AutovalidateMode.onUserInteraction,
-              key: nameFormKey,
+              key: firstNameFormKey,
               child: TextFormField(
                 textCapitalization: TextCapitalization.words,
-                controller: nameController,
+                controller: firstNameController,
                 cursorColor: gGreyColor,
                 validator: (value) {
                   if (value!.isEmpty ||
@@ -167,7 +182,58 @@ class _DonorRegistrationState extends State<DonorRegistration> {
                 },
                 focusNode: _nameFocus,
                 decoration: InputDecoration(
-                  hintText: "Enter your full name",
+                  hintText: "Enter your first name",
+                  hoverColor: gSecondaryColor,
+                  hintStyle: TextStyle(
+                    fontFamily: textFieldHintFont,
+                    color: textFieldHintColor.withOpacity(0.5),
+                    fontSize: textFieldHintText,
+                  ),
+                  enabledBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(
+                      color: textFieldUnderLineColor.withOpacity(0.3),
+                    ),
+                  ),
+                  focusedBorder: const UnderlineInputBorder(
+                    borderSide: BorderSide(
+                      color: textFieldUnderLineColor,
+                    ),
+                  ),
+                ),
+                style: TextStyle(
+                    fontFamily: textFieldFont,
+                    fontSize: textFieldText,
+                    color: textFieldColor),
+                textInputAction: TextInputAction.next,
+                textAlign: TextAlign.start,
+                keyboardType: TextInputType.name,
+                inputFormatters: [
+                  FilteringTextInputFormatter.allow(
+                    RegExp(
+                      "[a-zA-Z ]",
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            buildTextFieldHeading("Last Name"),
+            Form(
+              autovalidateMode: AutovalidateMode.onUserInteraction,
+              key: lastNameFormKey,
+              child: TextFormField(
+                textCapitalization: TextCapitalization.words,
+                controller: lastNameController,
+                cursorColor: gGreyColor,
+                validator: (value) {
+                  if (value!.isEmpty ||
+                      !RegExp(r"^[a-z A-Z]").hasMatch(value)) {
+                    return 'Please enter your Name';
+                  } else {
+                    return null;
+                  }
+                },
+                decoration: InputDecoration(
+                  hintText: "Enter your last name",
                   hoverColor: gSecondaryColor,
                   hintStyle: TextStyle(
                     fontFamily: textFieldHintFont,
@@ -244,6 +310,75 @@ class _DonorRegistrationState extends State<DonorRegistration> {
                 keyboardType: TextInputType.emailAddress,
               ),
             ),
+            buildTextFieldHeading("Password"),
+            Form(
+              autovalidateMode: AutovalidateMode.disabled,
+              key: pwdFormKey,
+              child: TextFormField(
+                autovalidateMode: AutovalidateMode.onUserInteraction,
+                keyboardType: TextInputType.visiblePassword,
+                cursorColor: gBlackColor,
+                controller: passwordController,
+                obscureText: !passwordVisibility,
+                textAlignVertical: TextAlignVertical.center,
+                style: TextStyle(
+                    fontFamily: textFieldFont,
+                    fontSize: textFieldText,
+                    color: textFieldColor),
+                validator: (value) {
+                  if (value!.isEmpty) {
+                    return 'Please enter the Password';
+                  }
+                  if (!RegExp('[a-zA-Z]')
+                  // RegExp(
+                  //         r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!@#\$&*~]).{6,20}$')
+                      .hasMatch(value)) {
+                    return 'Password may contains alpha numeric';
+                  }
+                  if (value.length < 6 || value.length > 20) {
+                    return 'Password must me 6 to 20 characters';
+                  }
+                  if (!RegExp('[a-zA-Z]')
+                  // RegExp(
+                  //         r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!@#\$&*~]).{6,20}$')
+                      .hasMatch(value)) {
+                    return 'Password must contains \n '
+                        '1-symbol 1-alphabet 1-number';
+                  }
+                  return null;
+                },
+                onFieldSubmitted: (val) {
+                  formKey.currentState!.validate();
+                },
+                decoration: InputDecoration(
+                  // prefixIcon: Icon(
+                  //   Icons.lock_outline_sharp,
+                  //   color: gBlackColor,
+                  //   size: 15.dp,
+                  // ),
+                  hintText: "Enter your password",
+                  hintStyle: TextStyle(
+                    fontFamily: textFieldHintFont,
+                    color: textFieldHintColor.withOpacity(0.5),
+                    fontSize: textFieldHintText,
+                  ),
+                  suffixIcon: InkWell(
+                    onTap: () {
+                      setState(() {
+                        passwordVisibility = !passwordVisibility;
+                      });
+                    },
+                    child: Icon(
+                      passwordVisibility
+                          ? Icons.visibility_outlined
+                          : Icons.visibility_off_outlined,
+                      color: passwordVisibility ? gBlackColor : gGreyColor,
+                      size: 15.dp,
+                    ),
+                  ),
+                ),
+              ),
+            ),
             buildTextFieldHeading("Restaurant Name"),
             Form(
               autovalidateMode: AutovalidateMode.disabled,
@@ -259,7 +394,9 @@ class _DonorRegistrationState extends State<DonorRegistration> {
                   fontSize: textFieldText,
                   color: textFieldColor,
                 ),
-                onChanged: (v) {},
+                onChanged: (v) {
+                  restaurantNameController.text = v.toString() ?? '';
+                },
                 decoration: InputDecoration(
                   hintStyle: TextStyle(
                     fontFamily: textFieldHintFont,
@@ -333,15 +470,20 @@ class _DonorRegistrationState extends State<DonorRegistration> {
                 keyboardType: TextInputType.emailAddress,
               ),
             ),
-            buildTextFieldHeading("ID Proof", isRequired: true),
+            buildTextFieldHeading("ID Proof Number", isRequired: true),
             Form(
               autovalidateMode: AutovalidateMode.disabled,
               key: idProofFormKey,
               child: TextFormField(
                 controller: idProofController,
+                inputFormatters: [
+                  FilteringTextInputFormatter.digitsOnly,
+                  AdhaarCardNumberFormater(),
+                  LengthLimitingTextInputFormatter(14),
+                ],
                 cursorColor: gGreyColor,
                 decoration: InputDecoration(
-                    hintText: "Attach your adhaar card",
+                    hintText: "Enter your adhaar card Number",
                     hintStyle: TextStyle(
                       fontFamily: textFieldHintFont,
                       color: textFieldHintColor.withOpacity(0.5),
@@ -355,14 +497,6 @@ class _DonorRegistrationState extends State<DonorRegistration> {
                     focusedBorder: const UnderlineInputBorder(
                       borderSide: BorderSide(
                         color: textFieldUnderLineColor,
-                      ),
-                    ),
-                    suffixIcon: GestureDetector(
-                      onTap: () {},
-                      child: Icon(
-                        Icons.attach_file_sharp,
-                        color: textFieldHintColor.withOpacity(0.5),
-                        size: 2.5.h,
                       ),
                     ),
                 ),
@@ -379,14 +513,38 @@ class _DonorRegistrationState extends State<DonorRegistration> {
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 5.h),
               child: ElevatedButton(
-                onPressed: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) =>
-                          // SitBackScreen(),
-                          const FeedMeScreen(),
-                    ),
-                  );
+                onPressed: isLoading ? null : () async {
+                  if (firstNameFormKey.currentState!.validate() &&
+                      lastNameFormKey.currentState!.validate() &&
+                      emailFormKey.currentState!.validate() &&
+                      restaurantsNameFormKey.currentState!.validate() &&
+                      idProofFormKey.currentState!.validate()) {
+                    if (firstNameController.text.isNotEmpty &&
+                        lastNameController.text.isNotEmpty &&
+                        restaurantNameController.text.isNotEmpty &&
+                        emailController.text.isNotEmpty &&
+                        idProofController.text.isNotEmpty) {
+
+                      Navigator.of(context).pushReplacement(
+                        MaterialPageRoute(
+                          builder: (context) => const FeedMeScreen()),
+
+                      );
+
+                      // final response = await supabase.from('users').insert({
+                      //   'f_name': firstNameController.text.trim(),
+                      //   'l_name': lastNameController.text.trim(),
+                      //   'email': emailController.text.trim(),
+                      //   'password': passwordController.text.trim(),
+                      //   'res_name': restaurantNameController.text.trim(),
+                      //   'id_proof_number': idProofController.text.trim(),
+                      //   'user_type': 'Donor',
+                      //   // 'location':locationController.text.trim(),
+                      // });
+                      //
+                      // print("response : ${response.runtimeType}");
+                       }
+                     }
                 },
                 style: ElevatedButton.styleFrom(
                   foregroundColor:
@@ -420,5 +578,31 @@ class _DonorRegistrationState extends State<DonorRegistration> {
     return RegExp(
             r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
         .hasMatch(email);
+  }
+}
+
+// this class will be called, when their is change in textField
+class AdhaarCardNumberFormater extends TextInputFormatter{
+  @override
+  TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
+    if(newValue.selection.baseOffset == 0){
+      return newValue;
+    }
+    String enteredData = newValue.text;   // get data enter by used in textField
+    StringBuffer buffer = StringBuffer();
+    for(int i = 0;i <enteredData.length;i++){
+      // add each character into String buffer
+      buffer.write(enteredData[i]);
+      int index = i + 1;
+      if(index % 4 == 0 && enteredData.length != index){
+        // add space after 4th digit
+        buffer.write(" ");
+      }
+    }
+
+    return  TextEditingValue(
+        text: buffer.toString(),   // final generated credit card number
+        selection: TextSelection.collapsed(offset: buffer.toString().length) // keep the cursor at end
+    );
   }
 }

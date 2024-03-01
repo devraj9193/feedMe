@@ -1,7 +1,6 @@
 import 'package:feed_me/utils/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_sizer/flutter_sizer.dart';
-
 import '../../utils/widgets/widgets.dart';
 import 'login_Screen.dart';
 import 'new_user/register_selection.dart';
@@ -42,7 +41,21 @@ class _FeedMeScreenState extends State<FeedMeScreen> {
               );
             }),
             SizedBox(height: 2.h),
-            buildLoginButtons('Register', () {
+            buildLoginButtons('Register', () async {
+
+              // final data = await supabase
+              //     .from('users')
+              //     .select('*')
+              //     .eq('email', 'amith@gmail.com');
+
+              // final data = await supabase
+              //     .from('users')
+              //     .select('f_name, l_name')
+              //     .eq('email', 'amith@gmail.com');
+              // final data = await supabase.from('users').select('*').eq('email', 'amith@gmail.com');
+
+              // print("data : ${data}");
+
               Navigator.of(context).push(
                 MaterialPageRoute(
                   builder: (context) =>
