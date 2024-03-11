@@ -63,11 +63,12 @@ class _VolunteerListState extends State<VolunteerList> {
         itemBuilder: (context, index) {
           final file = dummyData[index];
           return GestureDetector(
-            onTap: (){
+            onTap: () {
               Navigator.of(context).pushReplacement(
                 MaterialPageRoute(
-                  builder: (context) =>
-                  const VolunteerDeliveryDetails(),
+                  builder: (context) => const VolunteerDeliveryDetails(
+                    volunteerData: null,
+                  ),
                 ),
               );
             },

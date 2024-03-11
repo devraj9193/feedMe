@@ -1,22 +1,74 @@
+import 'package:feed_me/dashboard_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_sizer/flutter_sizer.dart';
 import 'package:image_network/image_network.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import '../../main.dart';
+import '../../utils/app_config.dart';
 import '../../utils/constants.dart';
+import '../../utils/widgets/no_data_found.dart';
 import '../../utils/widgets/widgets.dart';
 import '../../utils/widgets/will_pop_widget.dart';
 import '../donor_screens/google_map_screen.dart';
 
 class NavigationPickUp extends StatefulWidget {
   final bool isDelivery;
-  final String name;
+  final String ashramId;
+  final String donorId;
   const NavigationPickUp(
-      {super.key, this.isDelivery = false, required this.name});
+      {super.key,
+      this.isDelivery = false,
+      required this.ashramId,
+      required this.donorId});
 
   @override
   State<NavigationPickUp> createState() => _NavigationPickUpState();
 }
 
 class _NavigationPickUpState extends State<NavigationPickUp> {
+  List<Map<String, dynamic>> navigationData = [];
+
+  var loading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    getNavigation();
+  }
+
+  getNavigation() async {
+    setState(() {
+      loading = true;
+    });
+
+    // getProfileDetails =
+    //     UserProfileService(repository: repository).getUserProfileService();
+
+    print("donorId : ${widget.donorId}");
+    print("ashramId : ${widget.ashramId}");
+
+    try {
+      final response = widget.isDelivery
+          ? await supabase.from('ashrams').select('*').eq('id', widget.donorId)
+          : await supabase.from('ashrams').select('*').eq('id', widget.ashramId);
+
+      navigationData = response;
+
+      print("Navigation Details : $navigationData");
+    } on PostgrestException catch (error) {
+      AppConfig().showSnackbar(context, error.message, isError: true);
+    } catch (error) {
+      AppConfig()
+          .showSnackbar(context, 'Unexpected error occurred', isError: true);
+    } finally {
+      if (mounted) {
+        setState(() {
+          loading = false;
+        });
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return WillPopWidget(
@@ -42,7 +94,15 @@ class _NavigationPickUpState extends State<NavigationPickUp> {
               ),
               Expanded(
                 child: SingleChildScrollView(
-                  child: mainView(),
+                  child: loading
+                      ? Padding(
+                    padding: EdgeInsets.symmetric(vertical: 35.h),
+                    child:
+                    buildThreeBounceIndicator(color: gBlackColor),
+                  )
+                      : navigationData.isEmpty
+                      ? const NoDataFound()
+                      : mainView(navigationData[0]),
                 ),
               ),
             ],
@@ -52,13 +112,12 @@ class _NavigationPickUpState extends State<NavigationPickUp> {
     );
   }
 
-  mainView() {
+  mainView(Map<String, dynamic> navigationDetails) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 6.w),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(height: 1.h),
           Text(
             "Current Location",
             style: TextStyle(
@@ -68,7 +127,7 @@ class _NavigationPickUpState extends State<NavigationPickUp> {
             ),
           ),
           Text(
-            "Hari Nagar Ashram",
+            navigationDetails['ashram_name'] ?? "Hari Nagar Ashram",
             style: TextStyle(
               fontFamily: kFontBold,
               fontSize: backButton,
@@ -76,7 +135,7 @@ class _NavigationPickUpState extends State<NavigationPickUp> {
             ),
           ),
           Text(
-            "1298 A divine view main road",
+            navigationDetails['address'] ?? "1298 A divine view main road",
             style: TextStyle(
               fontFamily: kFontMedium,
               fontSize: textFieldHintText,
@@ -132,7 +191,7 @@ class _NavigationPickUpState extends State<NavigationPickUp> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        widget.name,
+                        navigationDetails['ashram_name'],
                         style: TextStyle(
                           fontSize: listHeadingSize,
                           fontFamily: listHeadingFont,
@@ -189,7 +248,23 @@ class _NavigationPickUpState extends State<NavigationPickUp> {
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 5.h),
             child: ElevatedButton(
-              onPressed: () {},
+              onPressed: widget.isDelivery ? () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) =>const DashboardScreen()
+                  ),
+                );
+              } : (){
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => NavigationPickUp(
+                      ashramId: widget.ashramId.toString(),
+                      donorId: widget.donorId.toString(),
+                      isDelivery: true,
+                    ),
+                  ),
+                );
+              },
               style: ElevatedButton.styleFrom(
                 foregroundColor:
                     loginButtonSelectedColor, //change background color of button

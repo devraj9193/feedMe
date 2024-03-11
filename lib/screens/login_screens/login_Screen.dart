@@ -769,63 +769,97 @@ class _LoginScreenState extends State<LoginScreen> {
       isLoading = true;
     });
     print("---------Login---------");
-
-    final result = await loginRegistrationService.loginRegistrationService(
-      // "thanraj@gmail.com",
-      // "Than@123",
-      email,
-      pwd,
-    );
-
-    if (result.runtimeType == AuthResponse) {
-      AuthResponse model = result as AuthResponse;
-
-      print(model);
-
-      setState(() {
-        isLoading = false;
-      });
-
-      storeUserProfile();
-
-      _pref.setBool(AppConfig.isLogin, true);
-      _pref.setInt(AppConfig.last_login, DateTime.now().millisecondsSinceEpoch);
-
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
-          builder: (context) => const DashboardScreen(),
-        ),
-      );
-    } else {
-      setState(() {
-        isLoading = false;
-      });
-      _pref.setBool(AppConfig.isLogin, false);
-
-      ErrorModel response = result as ErrorModel;
-      AppConfig().showSnackbar(context, response.message!, isError: true);
-      // Navigator.of(context).pushReplacement(
-      //   MaterialPageRoute(
-      //     builder: (context) => const DashboardScreen(),
-      //   ),
-      // );
-    }
-  }
-
-  void storeUserProfile() async {
+    try {
     final response = await supabase
         .from('users')
         .select('*')
-        .eq('email', "${_pref.getString(AppConfig.userEmail)}");
+        .eq('email', email);
 
     List<Map<String, dynamic>> model1 = response;
 
     print("user profile : $response");
 
-    _pref.setString(AppConfig.userName, model1[0]["f_name"] ?? "");
-    _pref.setString(AppConfig.userEmail, model1[0]["email"] ?? "");
-    _pref.setString(AppConfig.userType, model1[0]["user_type"] ?? "");
-    _pref.setString(AppConfig.userRestaurant, model1[0]["res_name"] ?? "");
+    if(model1[0]["password"] == pwd) {
+
+        _pref.setInt(AppConfig.last_login, DateTime.now().millisecondsSinceEpoch);
+        _pref.setBool(AppConfig.isLogin, true);
+        _pref.setString(AppConfig.userId, model1[0]["id"].toString());
+        _pref.setString(AppConfig.userName, model1[0]["f_name"] ?? "");
+        _pref.setString(AppConfig.userEmail, model1[0]["email"] ?? "");
+        _pref.setString(AppConfig.userType, model1[0]["user_type"] ?? "");
+        _pref.setString(AppConfig.userRestaurant, model1[0]["res_name"] ?? "");
+
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder: (context) => const DashboardScreen(),
+          ),
+        );
+      } else {
+        setState(() {
+          isLoading = false;
+        });
+        _pref.setBool(AppConfig.isLogin, false);
+
+        AppConfig().showSnackbar(context, "Password Is Mismatch", isError: true);
+        // Navigator.of(context).pushReplacement(
+        //   MaterialPageRoute(
+        //     builder: (context) => const DashboardScreen(),
+        //   ),
+        // );
+      }
+    } on PostgrestException catch (error) {
+      AppConfig().showSnackbar(context, error.message, isError: true);
+    } catch (error) {
+      AppConfig()
+          .showSnackbar(context, 'Unexpected error occurred', isError: true);
+    } finally {
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
+    }
+
+    // final result = await loginRegistrationService.loginRegistrationService(
+    //   // "thanraj@gmail.com",
+    //   // "Than@123",
+    //   email,
+    //   pwd,
+    // );
+    //
+    // if (result.runtimeType == AuthResponse) {
+    //   AuthResponse model = result as AuthResponse;
+    //
+    //   print(model);
+    //
+    //   setState(() {
+    //     isLoading = false;
+    //   });
+    //
+    //   storeUserProfile();
+    //
+    //   _pref.setBool(AppConfig.isLogin, true);
+    //   _pref.setInt(AppConfig.last_login, DateTime.now().millisecondsSinceEpoch);
+    //
+    //   Navigator.of(context).pushReplacement(
+    //     MaterialPageRoute(
+    //       builder: (context) => const DashboardScreen(),
+    //     ),
+    //   );
+    // } else {
+    //   setState(() {
+    //     isLoading = false;
+    //   });
+    //   _pref.setBool(AppConfig.isLogin, false);
+    //
+    //   ErrorModel response = result as ErrorModel;
+    //   AppConfig().showSnackbar(context, response.message!, isError: true);
+    //   // Navigator.of(context).pushReplacement(
+    //   //   MaterialPageRoute(
+    //   //     builder: (context) => const DashboardScreen(),
+    //   //   ),
+    //   // );
+    // }
   }
 
   // Future<void> signIn() async {

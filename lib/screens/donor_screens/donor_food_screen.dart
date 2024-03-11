@@ -934,6 +934,8 @@ class _DonorFoodScreenState extends State<DonorFoodScreen> {
     );
   }
 
+  final _prefs = AppConfig().preferences;
+
   void submitDonateFood(
     int ashramId,
     String foodItems,
@@ -950,10 +952,26 @@ class _DonorFoodScreenState extends State<DonorFoodScreen> {
     });
 
     print("ashramId : $ashramId");
+    print("donor_id : ${_prefs?.getString(AppConfig.userId)}");
+
+    Map data = { "ashram_id": ashramId,
+      "food_items": foodItems,
+      "donor_id": _prefs?.getString(AppConfig.userId),
+      "food_quantity": foodQuantity,
+      "cooking_date": cookingDate,
+      "cooking_time": cookingTime,
+      "pickup_time": pickupTime,
+      "expectation_date": expectationDate,
+      "expectation_time": expectationTime,
+      "special_instructions": specialInstructions,
+    };
+
+    print("DATA : $data");
 
     try {
-      final res = await supabase.from('users').insert({
+      final res = await supabase.from('ashram_requests').insert({
         "ashram_id": ashramId,
+        "donor_id": _prefs?.getString(AppConfig.userId),
         "food_items": foodItems,
         "food_quantity": foodQuantity,
         "cooking_date": cookingDate,
@@ -966,6 +984,11 @@ class _DonorFoodScreenState extends State<DonorFoodScreen> {
 
       print("submitDonateFood:$res");
       print("submitDonateFood.runtimeType: ${res.runtimeType}");
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (context) => const DashboardScreen(),
+        ),
+      );
     } on PostgrestException catch (error) {
       AppConfig().showSnackbar(context, error.message, isError: true);
     } catch (error) {

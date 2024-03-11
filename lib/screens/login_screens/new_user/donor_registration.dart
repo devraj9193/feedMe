@@ -98,7 +98,7 @@ class _DonorRegistrationState extends State<DonorRegistration> {
     firstNameController.removeListener(() {});
     lastNameController.removeListener(() {});
     emailController.removeListener(() {});
-    passwordController.removeListener(() { });
+    passwordController.removeListener(() {});
     restaurantNameController.removeListener(() {});
     locationController.removeListener(() {});
     idProofController.removeListener(() {});
@@ -331,8 +331,8 @@ class _DonorRegistrationState extends State<DonorRegistration> {
                     return 'Please enter the Password';
                   }
                   if (!RegExp('[a-zA-Z]')
-                  // RegExp(
-                  //         r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!@#\$&*~]).{6,20}$')
+                      // RegExp(
+                      //         r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!@#\$&*~]).{6,20}$')
                       .hasMatch(value)) {
                     return 'Password may contains alpha numeric';
                   }
@@ -340,8 +340,8 @@ class _DonorRegistrationState extends State<DonorRegistration> {
                     return 'Password must me 6 to 20 characters';
                   }
                   if (!RegExp('[a-zA-Z]')
-                  // RegExp(
-                  //         r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!@#\$&*~]).{6,20}$')
+                      // RegExp(
+                      //         r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!@#\$&*~]).{6,20}$')
                       .hasMatch(value)) {
                     return 'Password must contains \n '
                         '1-symbol 1-alphabet 1-number';
@@ -484,22 +484,22 @@ class _DonorRegistrationState extends State<DonorRegistration> {
                 ],
                 cursorColor: gGreyColor,
                 decoration: InputDecoration(
-                    hintText: "Enter your adhaar card Number",
-                    hintStyle: TextStyle(
-                      fontFamily: textFieldHintFont,
-                      color: textFieldHintColor.withOpacity(0.5),
-                      fontSize: textFieldHintText,
+                  hintText: "Enter your adhaar card Number",
+                  hintStyle: TextStyle(
+                    fontFamily: textFieldHintFont,
+                    color: textFieldHintColor.withOpacity(0.5),
+                    fontSize: textFieldHintText,
+                  ),
+                  enabledBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(
+                      color: textFieldUnderLineColor.withOpacity(0.3),
                     ),
-                    enabledBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(
-                        color: textFieldUnderLineColor.withOpacity(0.3),
-                      ),
+                  ),
+                  focusedBorder: const UnderlineInputBorder(
+                    borderSide: BorderSide(
+                      color: textFieldUnderLineColor,
                     ),
-                    focusedBorder: const UnderlineInputBorder(
-                      borderSide: BorderSide(
-                        color: textFieldUnderLineColor,
-                      ),
-                    ),
+                  ),
                 ),
                 style: TextStyle(
                   fontFamily: textFieldFont,
@@ -514,31 +514,31 @@ class _DonorRegistrationState extends State<DonorRegistration> {
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 5.h),
               child: ElevatedButton(
-                onPressed: isLoading ? null : () {
-                  if (firstNameFormKey.currentState!.validate() &&
-                      lastNameFormKey.currentState!.validate() &&
-                      emailFormKey.currentState!.validate() &&
-                      restaurantsNameFormKey.currentState!.validate() &&
-                      idProofFormKey.currentState!.validate()) {
-                    if (firstNameController.text.isNotEmpty &&
-                        lastNameController.text.isNotEmpty &&
-                        restaurantNameController.text.isNotEmpty &&
-                        emailController.text.isNotEmpty &&
-                        idProofController.text.isNotEmpty) {
-
-                      donorRegistration(
-                           firstNameController.text.trim(),
-                   lastNameController.text.trim(),
-                   emailController.text.trim(),
-                   passwordController.text.trim(),
-                   restaurantNameController.text.trim(),
-                   idProofController.text.trim(),
-                   'Donor',
-                      );
-
-                      }
-                    }
-                },
+                onPressed: isLoading
+                    ? null
+                    : () {
+                        if (firstNameFormKey.currentState!.validate() &&
+                            lastNameFormKey.currentState!.validate() &&
+                            emailFormKey.currentState!.validate() &&
+                            restaurantsNameFormKey.currentState!.validate() &&
+                            idProofFormKey.currentState!.validate()) {
+                          if (firstNameController.text.isNotEmpty &&
+                              lastNameController.text.isNotEmpty &&
+                              restaurantNameController.text.isNotEmpty &&
+                              emailController.text.isNotEmpty &&
+                              idProofController.text.isNotEmpty) {
+                            donorRegistration(
+                              firstNameController.text.trim(),
+                              lastNameController.text.trim(),
+                              emailController.text.trim(),
+                              passwordController.text.trim(),
+                              restaurantNameController.text.trim(),
+                              idProofController.text.trim(),
+                              'Donor',
+                            );
+                          }
+                        }
+                      },
                 style: ElevatedButton.styleFrom(
                   foregroundColor:
                       loginButtonSelectedColor, //change background color of button
@@ -550,14 +550,18 @@ class _DonorRegistrationState extends State<DonorRegistration> {
                   elevation: 2.0,
                 ),
                 child: Center(
-                  child: Text(
-                    "Register",
-                    style: TextStyle(
-                      fontFamily: buttonFont,
-                      fontSize: buttonFontSize,
-                      color: buttonColor,
-                    ),
-                  ),
+                  child: isLoading
+                      ? buildThreeBounceIndicator(
+                          color: buttonColor,
+                        )
+                      : Text(
+                          "Register",
+                          style: TextStyle(
+                            fontFamily: buttonFont,
+                            fontSize: buttonFontSize,
+                            color: buttonColor,
+                          ),
+                        ),
                 ),
               ),
             )
@@ -574,20 +578,19 @@ class _DonorRegistrationState extends State<DonorRegistration> {
   }
 
   void donorRegistration(
-      String fName,
-      String lName,
-      String email,
-      String password,
-      String resName,
-      String idProofNumber,
-      String userType,
-      ) async {
+    String fName,
+    String lName,
+    String email,
+    String password,
+    String resName,
+    String idProofNumber,
+    String userType,
+  ) async {
     setState(() {
       isLoading = true;
     });
 
     try {
-
       final res = await supabase.from('users').insert({
         'f_name': fName,
         'l_name': lName,
@@ -600,7 +603,6 @@ class _DonorRegistrationState extends State<DonorRegistration> {
       });
 
       print("response : ${res.runtimeType}");
-
     } on PostgrestException catch (error) {
       AppConfig().showSnackbar(context, error.message, isError: true);
     } catch (error) {
@@ -622,27 +624,29 @@ class _DonorRegistrationState extends State<DonorRegistration> {
 }
 
 // this class will be called, when their is change in textField
-class AdhaarCardNumberFormater extends TextInputFormatter{
+class AdhaarCardNumberFormater extends TextInputFormatter {
   @override
-  TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
-    if(newValue.selection.baseOffset == 0){
+  TextEditingValue formatEditUpdate(
+      TextEditingValue oldValue, TextEditingValue newValue) {
+    if (newValue.selection.baseOffset == 0) {
       return newValue;
     }
-    String enteredData = newValue.text;   // get data enter by used in textField
+    String enteredData = newValue.text; // get data enter by used in textField
     StringBuffer buffer = StringBuffer();
-    for(int i = 0;i <enteredData.length;i++){
+    for (int i = 0; i < enteredData.length; i++) {
       // add each character into String buffer
       buffer.write(enteredData[i]);
       int index = i + 1;
-      if(index % 4 == 0 && enteredData.length != index){
+      if (index % 4 == 0 && enteredData.length != index) {
         // add space after 4th digit
         buffer.write(" ");
       }
     }
 
-    return  TextEditingValue(
-        text: buffer.toString(),   // final generated credit card number
-        selection: TextSelection.collapsed(offset: buffer.toString().length) // keep the cursor at end
-    );
+    return TextEditingValue(
+        text: buffer.toString(), // final generated credit card number
+        selection: TextSelection.collapsed(
+            offset: buffer.toString().length) // keep the cursor at end
+        );
   }
 }

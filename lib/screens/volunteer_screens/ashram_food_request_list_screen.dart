@@ -1,57 +1,52 @@
+import 'package:feed_me/screens/volunteer_screens/volunteer_delivery_details.dart';
+import 'package:feed_me/utils/widgets/will_pop_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_sizer/flutter_sizer.dart';
 import 'package:image_network/image_network.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../../dashboard_screen.dart';
 import '../../main.dart';
 import '../../utils/app_config.dart';
 import '../../utils/constants.dart';
 import '../../utils/widgets/no_data_found.dart';
 import '../../utils/widgets/widgets.dart';
-import '../../utils/widgets/will_pop_widget.dart';
-import '../volunteer_screens/navigation_pickup.dart';
-import '../volunteer_screens/volunteer_delivery_details.dart';
 
-class CommunityScreen extends StatefulWidget {
-  const CommunityScreen({super.key});
+class AshramFoodRequestListScreen extends StatefulWidget {
+  final dynamic volunteerData;
+  const AshramFoodRequestListScreen({super.key, required this.volunteerData});
 
   @override
-  State<CommunityScreen> createState() => _CommunityScreenState();
+  State<AshramFoodRequestListScreen> createState() =>
+      _AshramFoodRequestListScreenState();
 }
 
-class _CommunityScreenState extends State<CommunityScreen> {
-  List<Map<String, dynamic>> acceptedData = [];
-
-  final _prefs = AppConfig().preferences;
-
-  var loading = true;
+class _AshramFoodRequestListScreenState
+    extends State<AshramFoodRequestListScreen> {
+  bool isLoading = false;
+  List<Map<String, dynamic>> getDeliveryList = [];
 
   @override
   void initState() {
     super.initState();
-    getAcceptedList();
+    getDeliveryDetails();
   }
 
-  getAcceptedList() async {
+  getDeliveryDetails() async {
     setState(() {
-      loading = true;
+      isLoading = true;
     });
 
     // getProfileDetails =
     //     UserProfileService(repository: repository).getUserProfileService();
 
     try {
+      final data =
+          await supabase.from('ashram_requests').select('*').eq('ashram_id', widget.volunteerData['id']);
 
-      print("userId : ${_prefs?.getString(AppConfig.userId)}");
+      getDeliveryList = data;
 
-      final response = await supabase
-          .from('ashram_requests')
-          .select('*')
-          .eq('volunteer_id', "${_prefs?.getString(AppConfig.userId)}");
-
-      acceptedData = response;
-
-      print("accepted orders : $acceptedData");
+      print("Delivery Details : $getDeliveryList");
     } on PostgrestException catch (error) {
       AppConfig().showSnackbar(context, error.message, isError: true);
     } catch (error) {
@@ -60,7 +55,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
     } finally {
       if (mounted) {
         setState(() {
-          loading = false;
+          isLoading = false;
         });
       }
     }
@@ -71,67 +66,96 @@ class _CommunityScreenState extends State<CommunityScreen> {
     return WillPopWidget(
       child: Scaffold(
         body: SafeArea(
-          child: Padding(
-            padding: EdgeInsets.only(top: 1.h,left: 3.w),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                buildAppBar(
-                      () {},
-                  isBackEnable: false,
-                  showLogo: false,
-                  showChild: true,
-                  child: Text(
-                    "Accepted Orders",
-                    style: TextStyle(
-                      fontFamily: kFontBold,
-                      fontSize: 15.dp,
-                      color: gBlackColor,
+          child: Column(
+            children: [
+              SizedBox(height: 1.h),
+              buildAppBar(
+                () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => const DashboardScreen(),
                     ),
+                  );
+                },
+                showLogo: false,
+                showChild: true,
+                child: Text(
+                  widget.volunteerData['ashram_name'],
+                  style: TextStyle(
+                    fontFamily: kFontMedium,
+                    fontSize: backButton,
+                    color: gBlackColor,
                   ),
                 ),
-                SizedBox(height: 2.h),
-                Expanded(
-                  child: SingleChildScrollView(
-                    child: loading
-                        ? Padding(
-                      padding: EdgeInsets.symmetric(vertical: 35.h),
-                      child:
-                      buildThreeBounceIndicator(color: gBlackColor),
-                    )
-                        : acceptedData.isEmpty
-                        ? const NoDataFound()
-                        : buildProfileDetails(),
-                  ),
+              ),
+              Expanded(
+                child: SingleChildScrollView(
+                  child: isLoading
+                      ? Padding(
+                          padding: EdgeInsets.symmetric(vertical: 35.h),
+                          child: buildThreeBounceIndicator(color: gBlackColor),
+                        )
+                      : getDeliveryList.isEmpty
+                          ? const NoDataFound()
+                          : buildList(),
                 ),
-              ],
-            ),
+              ),
+              // TabBar(
+              //   controller: tabController,
+              //   labelColor: gBlackColor,
+              //   unselectedLabelColor: gGreyColor.withOpacity(0.5),
+              //   indicatorColor: gBlackColor,
+              //   labelStyle: TextStyle(
+              //     fontFamily: kFontBold,
+              //     color: gPrimaryColor,
+              //     fontSize: tapSelectedSize,
+              //   ),
+              //   unselectedLabelStyle: TextStyle(
+              //     fontFamily: tapFont,
+              //     color: gHintTextColor,
+              //     fontSize: tapUnSelectedSize,
+              //   ),
+              //   labelPadding: EdgeInsets.only(
+              //       right: 0.w, left: 0.w, top: 1.h, bottom: 1.h),
+              //   tabs: const [
+              //     Text('DONOR'),
+              //     Text('VOLUNTEER'),
+              //   ],
+              // ),
+              // Expanded(
+              //   child: TabBarView(
+              //     controller: tabController,
+              //     // physics: const NeverScrollableScrollPhysics(),
+              //     children: const [
+              //       DonorList(),
+              //       VolunteerList(),
+              //     ],
+              //   ),
+              // ),
+            ],
           ),
         ),
       ),
     );
   }
 
-  buildProfileDetails(){
+  buildList() {
     return ListView.builder(
-      itemCount: acceptedData.length,
+      itemCount: getDeliveryList.length,
       shrinkWrap: true,
       scrollDirection: Axis.vertical,
       physics: const ScrollPhysics(),
       itemBuilder: (context, index) {
-        dynamic file = acceptedData[index];
-        return GestureDetector(
+        dynamic file = getDeliveryList[index];
+        return  file['status'] == "pending" ? GestureDetector(
           onTap: () {
-            Navigator.of(context).push(
+            Navigator.of(context).pushReplacement(
               MaterialPageRoute(
-                builder: (context) => NavigationPickUp(
-                            ashramId: file['ashram_id'].toString(),
-                  donorId: file['donor_id'].toString(),
-                          ),
+                builder: (context) => VolunteerDeliveryDetails(
+                  volunteerData: file,
+                ),
               ),
             );
-
           },
           child: Container(
             height: 14.h,
@@ -279,34 +303,8 @@ class _CommunityScreenState extends State<CommunityScreen> {
               ),
             ),
           ),
-        );
+        ) : const SizedBox();
       },
     );
   }
 }
-
-
-class Data {
-  final String name;
-  final String address;
-  final int isFrom;
-
-  const Data({
-    required this.name,
-    required this.address,
-    required this.isFrom,
-  });
-}
-
-const List<Data> dummyData = [
-  Data(
-    name: "The Big Brunch",
-    address: "Drop of Arun school",
-    isFrom: 1,
-  ),
-  Data(
-    name: "Blind School",
-    address: "Avenue Colony, Flat No.404",
-    isFrom: 0,
-  ),
-];
