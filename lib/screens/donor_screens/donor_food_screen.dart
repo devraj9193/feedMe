@@ -15,7 +15,7 @@ import 'live_tracking.dart';
 
 class DonorFoodScreen extends StatefulWidget {
   final dynamic donorData;
-  const DonorFoodScreen({super.key, required this.donorData});
+  const DonorFoodScreen({Key? key,  required this.donorData}) : super(key: key);
 
   @override
   State<DonorFoodScreen> createState() => _DonorFoodScreenState();
@@ -96,7 +96,7 @@ class _DonorFoodScreenState extends State<DonorFoodScreen> {
                 () {
                   Navigator.of(context).push(
                     MaterialPageRoute(
-                      builder: (context) => const DashboardScreen(),
+                      builder: (context) => const DashboardScreen(index: 0,),
                     ),
                   );
                 },
@@ -745,7 +745,7 @@ class _DonorFoodScreenState extends State<DonorFoodScreen> {
                         onPressed: () {
                           Navigator.of(context).push(
                             MaterialPageRoute(
-                              builder: (context) => const DashboardScreen(),
+                              builder: (context) => const DashboardScreen(index: 0,),
                             ),
                           );
                         },
@@ -986,7 +986,7 @@ class _DonorFoodScreenState extends State<DonorFoodScreen> {
       print("submitDonateFood.runtimeType: ${res.runtimeType}");
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
-          builder: (context) => const DashboardScreen(),
+          builder: (context) => const DashboardScreen(index: 0,),
         ),
       );
     } on PostgrestException catch (error) {

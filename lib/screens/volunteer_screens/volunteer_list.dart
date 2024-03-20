@@ -6,7 +6,7 @@ import 'package:image_network/image_network.dart';
 import '../../utils/constants.dart';
 
 class VolunteerList extends StatefulWidget {
-  const VolunteerList({super.key});
+  const VolunteerList({Key? key, }) : super(key: key);
 
   @override
   State<VolunteerList> createState() => _VolunteerListState();

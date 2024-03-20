@@ -6,7 +6,7 @@ import '../../utils/constants.dart';
 import 'donor_food_screen.dart';
 
 class DonorList extends StatefulWidget {
-  const DonorList({super.key});
+  const DonorList({Key? key, }) : super(key: key);
 
   @override
   State<DonorList> createState() => _DonorListState();

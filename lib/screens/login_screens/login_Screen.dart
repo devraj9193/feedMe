@@ -9,7 +9,6 @@ import 'package:flutter_sizer/flutter_sizer.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../main.dart';
-import '../../models/error_model.dart';
 import '../../repository/login_registration_repo/login_registration_repo.dart';
 import '../../services/api_service.dart';
 import '../../services/login_registration_service/login_registration_service.dart';
@@ -21,7 +20,7 @@ import 'package:http/http.dart' as http;
 import 'feed_me_screen.dart';
 
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+  const LoginScreen({Key? key, }) : super(key: key);
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -791,7 +790,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(
-            builder: (context) => const DashboardScreen(),
+            builder: (context) => const DashboardScreen(index: 0,),
           ),
         );
       } else {

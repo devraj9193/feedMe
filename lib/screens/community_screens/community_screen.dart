@@ -9,11 +9,10 @@ import '../../utils/constants.dart';
 import '../../utils/widgets/no_data_found.dart';
 import '../../utils/widgets/widgets.dart';
 import '../../utils/widgets/will_pop_widget.dart';
-import '../volunteer_screens/navigation_pickup.dart';
-import '../volunteer_screens/volunteer_delivery_details.dart';
+import 'navigation_pickup.dart';
 
 class CommunityScreen extends StatefulWidget {
-  const CommunityScreen({super.key});
+  const CommunityScreen({Key? key}) : super(key: key);
 
   @override
   State<CommunityScreen> createState() => _CommunityScreenState();
@@ -41,7 +40,6 @@ class _CommunityScreenState extends State<CommunityScreen> {
     //     UserProfileService(repository: repository).getUserProfileService();
 
     try {
-
       print("userId : ${_prefs?.getString(AppConfig.userId)}");
 
       final response = await supabase
@@ -72,13 +70,13 @@ class _CommunityScreenState extends State<CommunityScreen> {
       child: Scaffold(
         body: SafeArea(
           child: Padding(
-            padding: EdgeInsets.only(top: 1.h,left: 3.w),
+            padding: EdgeInsets.only(top: 1.h, left: 3.w),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 buildAppBar(
-                      () {},
+                  () {},
                   isBackEnable: false,
                   showLogo: false,
                   showChild: true,
@@ -96,13 +94,13 @@ class _CommunityScreenState extends State<CommunityScreen> {
                   child: SingleChildScrollView(
                     child: loading
                         ? Padding(
-                      padding: EdgeInsets.symmetric(vertical: 35.h),
-                      child:
-                      buildThreeBounceIndicator(color: gBlackColor),
-                    )
+                            padding: EdgeInsets.symmetric(vertical: 35.h),
+                            child:
+                                buildThreeBounceIndicator(color: gBlackColor),
+                          )
                         : acceptedData.isEmpty
-                        ? const NoDataFound()
-                        : buildProfileDetails(),
+                            ? const NoDataFound()
+                            : buildAcceptedDetails(),
                   ),
                 ),
               ],
@@ -113,7 +111,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
     );
   }
 
-  buildProfileDetails(){
+  buildAcceptedDetails() {
     return ListView.builder(
       itemCount: acceptedData.length,
       shrinkWrap: true,
@@ -123,15 +121,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
         dynamic file = acceptedData[index];
         return GestureDetector(
           onTap: () {
-            Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (context) => NavigationPickUp(
-                            ashramId: file['ashram_id'].toString(),
-                  donorId: file['donor_id'].toString(),
-                          ),
-              ),
-            );
-
+            buildOnClick(file);
           },
           child: Container(
             height: 14.h,
@@ -172,36 +162,92 @@ class _CommunityScreenState extends State<CommunityScreen> {
                         color: loginButtonSelectedColor,
                       ),
                       onTap: () {
-                        debugPrint("©gabriel_patrick_souza");
+                        buildOnClick(file);
                       },
                     ),
                   ),
                   SizedBox(width: 2.w),
                   Expanded(
                     child: Padding(
-                      padding: EdgeInsets.symmetric(vertical: 1.h),
+                      padding: EdgeInsets.only(top: 1.h, right: 3.w),
                       child: SingleChildScrollView(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              file['food_items'],
-                              style: TextStyle(
-                                fontSize: listHeadingSize,
-                                fontFamily: listHeadingFont,
-                                color: gBlackColor,
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  file['food_items'],
+                                  style: TextStyle(
+                                    fontSize: listHeadingSize,
+                                    fontFamily: listHeadingFont,
+                                    color: gBlackColor,
+                                  ),
+                                ),
+                                Text(
+                                  "${file['food_quantity']}",
+                                  style: TextStyle(
+                                    fontSize: listSubHeadingSize,
+                                    height: 1.3,
+                                    fontFamily: listSubHeadingFont,
+                                    color: gBlackColor,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: 0.5.h),
+                            RichText(
+                              textAlign: TextAlign.start,
+                              text: TextSpan(
+                                children: <TextSpan>[
+                                  TextSpan(
+                                    text: "Status : ",
+                                    style: TextStyle(
+                                      fontSize: 11.dp,
+                                      height: 1.5,
+                                      fontFamily: kFontBook,
+                                      color: gBlackColor,
+                                    ),
+                                  ),
+                                  TextSpan(
+                                    text: file['status'],
+                                    style: TextStyle(
+                                      fontSize: 11.dp,
+                                      height: 1.5,
+                                      fontFamily: kFontBold,
+                                      color: gBlackColor,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
-                            Text(
-                              "${file['food_quantity']}",
-                              style: TextStyle(
-                                fontSize: listSubHeadingSize,
-                                height: 1.3,
-                                fontFamily: listSubHeadingFont,
-                                color: gBlackColor,
+                            RichText(
+                              textAlign: TextAlign.start,
+                              text: TextSpan(
+                                children: <TextSpan>[
+                                  TextSpan(
+                                    text: "Pickup Time : ",
+                                    style: TextStyle(
+                                      fontSize: 11.dp,
+                                      height: 1.5,
+                                      fontFamily: kFontBook,
+                                      color: gBlackColor,
+                                    ),
+                                  ),
+                                  TextSpan(
+                                    text: file['pickup_time'],
+                                    style: TextStyle(
+                                      fontSize: 11.dp,
+                                      height: 1.5,
+                                      fontFamily: kFontBold,
+                                      color: gBlackColor,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
-                            SizedBox(height: 1.5.h),
+                            SizedBox(height: 1.h),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
@@ -244,32 +290,6 @@ class _CommunityScreenState extends State<CommunityScreen> {
                                 ),
                               ],
                             ),
-                            SizedBox(height: 1.5.h),
-                            RichText(
-                              textAlign: TextAlign.start,
-                              text: TextSpan(
-                                children: <TextSpan>[
-                                  TextSpan(
-                                    text: "Pickup Time : ",
-                                    style: TextStyle(
-                                      fontSize: 11.dp,
-                                      height: 1.5,
-                                      fontFamily: kFontBook,
-                                      color: gBlackColor,
-                                    ),
-                                  ),
-                                  TextSpan(
-                                    text: file['pickup_time'],
-                                    style: TextStyle(
-                                      fontSize: 11.dp,
-                                      height: 1.5,
-                                      fontFamily: kFontBold,
-                                      color: gBlackColor,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
                           ],
                         ),
                       ),
@@ -283,8 +303,133 @@ class _CommunityScreenState extends State<CommunityScreen> {
       },
     );
   }
-}
 
+  void buildOnClick(Map<String, dynamic> file) {
+    if (file['status'] == "accepted") {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => NavigationPickUp(
+            file: file,
+          ),
+        ),
+      );
+    } else if (file['status'] == "picked_up") {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => NavigationPickUp(
+            file: file,
+            isDelivery: true,
+          ),
+        ),
+      );
+    } else if (file['status'] == "delivered") {
+      deliveredWidget(context);
+    } else {}
+  }
+
+  bool showDeliveredProgress = false;
+
+  /// we r showing in stateful builder so this parameter will be used
+  /// when we get setstate we will assign to this parameter based on that logout progress is used
+  var deliveredProgressState;
+
+  void deliveredWidget(BuildContext context) {
+    showDialog(
+        barrierDismissible: false,
+        barrierColor: gWhiteColor.withOpacity(0.8),
+        context: context,
+        builder: (context) {
+          return StatefulBuilder(builder: (_, setstate) {
+            deliveredProgressState = setstate;
+            return Center(
+              child: Container(
+                margin: EdgeInsets.symmetric(horizontal: 10.w),
+                padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 3.h),
+                decoration: BoxDecoration(
+                  color: gWhiteColor,
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: lightTextColor, width: 1),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    Text(
+                      "Delivery completed. Thank you for your help and contribution for this community",
+                      style: TextStyle(
+                          fontSize: listOtherSize,
+                          fontFamily: kFontBook,
+                          height: 1.4,
+                          color: gBlackColor),
+                      textAlign: TextAlign.center,
+                    ),
+                    SizedBox(height: 1.h),
+                    Text(
+                      '50 Points Rewarded',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: gTextColor,
+                        fontSize: bottomSheetSubHeadingXFontSize,
+                        fontFamily: bottomSheetSubHeadingMediumFont,
+                      ),
+                    ),
+                    Text(
+                      "has been added to your account",
+                      style: TextStyle(
+                          fontSize: listOtherSize,
+                          fontFamily: kFontBook,
+                          height: 1.4,
+                          color: gBlackColor),
+                      textAlign: TextAlign.center,
+                    ),
+                    SizedBox(height: 1.h),
+                    (showDeliveredProgress)
+                        ? Center(child: buildCircularIndicator())
+                        : Padding(
+                      padding: EdgeInsets.symmetric(
+                          horizontal: 2.w, vertical: 1.h),
+                      child: ElevatedButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                          // Navigator.of(context).push(
+                          //   MaterialPageRoute(
+                          //     builder: (context) =>
+                          //     // SitBackScreen(),
+                          //     const FeedMeScreen(),
+                          //   ),
+                          // );
+                        },
+                        style: ElevatedButton.styleFrom(
+                          foregroundColor:
+                          loginButtonSelectedColor, //change background color of button
+                          backgroundColor:
+                          loginButtonColor, //change text color of button
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          elevation: 2.0,
+                        ),
+                        child: Center(
+                          child: Text(
+                            "YAY!",
+                            style: TextStyle(
+                              fontFamily: buttonFont,
+                              fontSize: buttonFontSize,
+                              color: buttonColor,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          });
+        });
+  }
+}
 
 class Data {
   final String name;

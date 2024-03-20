@@ -10,7 +10,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_sizer/flutter_sizer.dart';
 
 class DashboardScreen extends StatefulWidget {
-  const DashboardScreen({Key? key}) : super(key: key);
+  final int index;
+  const DashboardScreen({Key? key, required this.index}) : super(key: key);
 
   @override
   State<DashboardScreen> createState() => _DashboardScreenState();
@@ -20,6 +21,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
   int _bottomNavIndex = 0;
 
   final int savePrevIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    setState(() {
+      _bottomNavIndex = widget.index;
+    });
+  }
 
   List<BottomNavigationBarItem> items = [
     BottomNavigationBarItem(

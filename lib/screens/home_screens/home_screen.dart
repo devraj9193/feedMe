@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../../dashboard_screen.dart';
 import '../../main.dart';
 import '../../utils/app_config.dart';
 import '../../utils/constants.dart';
@@ -15,7 +16,7 @@ import '../donor_screens/donor_food_screen.dart';
 import '../volunteer_screens/ashram_food_request_list_screen.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  const HomeScreen({Key? key, }) : super(key: key);
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -168,7 +169,13 @@ class _HomeScreenState extends State<HomeScreen>
                                     color: gGreyColor.withOpacity(0.5),
                                   ),
                                   onTap: () {
-                                    debugPrint("©gabriel_patrick_souza");
+                                    Navigator.of(context).pushReplacement(
+                                      MaterialPageRoute(
+                                        builder: (context) => const DashboardScreen(
+                                          index: 4,
+                                        ),
+                                      ),
+                                    );
                                   },
                                 ),
                               ),
@@ -309,7 +316,7 @@ class _HomeScreenState extends State<HomeScreen>
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: ImageNetwork(
-                      image: '',
+                      image: file['image_url'] ?? "",
                       height: 14.h,
                       width: 32.w,
                       // duration: 1500,

@@ -12,12 +12,12 @@ import '../../utils/widgets/no_data_found.dart';
 import '../../utils/widgets/widgets.dart';
 
 import '../donor_screens/live_tracking.dart';
-import 'navigation_pickup.dart';
+import '../community_screens/navigation_pickup.dart';
 
 class VolunteerDeliveryDetails extends StatefulWidget {
   final dynamic volunteerData;
 
-  const VolunteerDeliveryDetails({super.key, required this.volunteerData});
+  const VolunteerDeliveryDetails({Key? key, required this.volunteerData}) : super(key: key);
 
   @override
   State<VolunteerDeliveryDetails> createState() =>
@@ -674,7 +674,7 @@ class _VolunteerDeliveryDetailsState extends State<VolunteerDeliveryDetails> {
               padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 5.h),
               child: ElevatedButton(
                 onPressed: () {
-                  deliveredWidget(context);
+                  // deliveredWidget(context);
                 },
                 style: ElevatedButton.styleFrom(
                   foregroundColor:
@@ -781,108 +781,6 @@ class _VolunteerDeliveryDetailsState extends State<VolunteerDeliveryDetails> {
     );
   }
 
-  bool showDeliveredProgress = false;
-
-  /// we r showing in stateful builder so this parameter will be used
-  /// when we get setstate we will assign to this parameter based on that logout progress is used
-  var deliveredProgressState;
-
-  void deliveredWidget(BuildContext context) {
-    showDialog(
-        barrierDismissible: false,
-        barrierColor: gWhiteColor.withOpacity(0.8),
-        context: context,
-        builder: (context) {
-          return StatefulBuilder(builder: (_, setstate) {
-            deliveredProgressState = setstate;
-            return Center(
-              child: Container(
-                margin: EdgeInsets.symmetric(horizontal: 10.w),
-                padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 3.h),
-                decoration: BoxDecoration(
-                  color: gWhiteColor,
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: lightTextColor, width: 1),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    Text(
-                      "Delivery completed. Thank you for your help and contribution for this community",
-                      style: TextStyle(
-                          fontSize: listOtherSize,
-                          fontFamily: kFontBook,
-                          height: 1.4,
-                          color: gBlackColor),
-                      textAlign: TextAlign.center,
-                    ),
-                    SizedBox(height: 1.h),
-                    Text(
-                      '50 Points Rewarded',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: gTextColor,
-                        fontSize: bottomSheetSubHeadingXFontSize,
-                        fontFamily: bottomSheetSubHeadingMediumFont,
-                      ),
-                    ),
-                    Text(
-                      "has been added to your account",
-                      style: TextStyle(
-                          fontSize: listOtherSize,
-                          fontFamily: kFontBook,
-                          height: 1.4,
-                          color: gBlackColor),
-                      textAlign: TextAlign.center,
-                    ),
-                    SizedBox(height: 1.h),
-                    (showDeliveredProgress)
-                        ? Center(child: buildCircularIndicator())
-                        : Padding(
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 2.w, vertical: 1.h),
-                            child: ElevatedButton(
-                              onPressed: () {
-                                // Navigator.of(context).push(
-                                //   MaterialPageRoute(
-                                //     builder: (context) =>
-                                //     // SitBackScreen(),
-                                //     const FeedMeScreen(),
-                                //   ),
-                                // );
-                              },
-                              style: ElevatedButton.styleFrom(
-                                foregroundColor:
-                                    loginButtonSelectedColor, //change background color of button
-                                backgroundColor:
-                                    loginButtonColor, //change text color of button
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                elevation: 2.0,
-                              ),
-                              child: Center(
-                                child: Text(
-                                  "YAY!",
-                                  style: TextStyle(
-                                    fontFamily: buttonFont,
-                                    fontSize: buttonFontSize,
-                                    color: buttonColor,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                  ],
-                ),
-              ),
-            );
-          });
-        });
-  }
-
   bool acceptLoading = false;
 
   final _prefs = AppConfig().preferences;
@@ -916,7 +814,7 @@ class _VolunteerDeliveryDetailsState extends State<VolunteerDeliveryDetails> {
       print("submitVolunteer.runtimeType: ${res.runtimeType}");
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
-          builder: (context) => const DashboardScreen(),
+          builder: (context) => const DashboardScreen(index: 0,),
         ),
       );
     } on PostgrestException catch (error) {

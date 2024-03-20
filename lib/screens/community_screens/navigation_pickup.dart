@@ -13,13 +13,10 @@ import '../donor_screens/google_map_screen.dart';
 
 class NavigationPickUp extends StatefulWidget {
   final bool isDelivery;
-  final String ashramId;
-  final String donorId;
+  final Map<String, dynamic> file;
   const NavigationPickUp(
-      {super.key,
-      this.isDelivery = false,
-      required this.ashramId,
-      required this.donorId});
+      {Key? key, this.isDelivery = false, required this.file})
+      : super(key: key);
 
   @override
   State<NavigationPickUp> createState() => _NavigationPickUpState();
@@ -44,17 +41,23 @@ class _NavigationPickUpState extends State<NavigationPickUp> {
     // getProfileDetails =
     //     UserProfileService(repository: repository).getUserProfileService();
 
-    print("donorId : ${widget.donorId}");
-    print("ashramId : ${widget.ashramId}");
+    print("donorId : ${widget.file["donor_id"]}");
+    print("ashramId : ${widget.file["ashram_id"]}");
 
     try {
       final response = widget.isDelivery
-          ? await supabase.from('ashrams').select('*').eq('id', widget.donorId)
-          : await supabase.from('ashrams').select('*').eq('id', widget.ashramId);
+          ? await supabase
+              .from('users')
+              .select('*')
+              .eq('id', widget.file["donor_id"])
+          : await supabase
+              .from('ashrams')
+              .select('*')
+              .eq('id', widget.file["ashram_id"]);
 
       navigationData = response;
 
-      print("Navigation Details : $navigationData");
+      print("Donor Details : $navigationData");
     } on PostgrestException catch (error) {
       AppConfig().showSnackbar(context, error.message, isError: true);
     } catch (error) {
@@ -96,13 +99,27 @@ class _NavigationPickUpState extends State<NavigationPickUp> {
                 child: SingleChildScrollView(
                   child: loading
                       ? Padding(
-                    padding: EdgeInsets.symmetric(vertical: 35.h),
-                    child:
-                    buildThreeBounceIndicator(color: gBlackColor),
-                  )
+                          padding: EdgeInsets.symmetric(vertical: 35.h),
+                          child: buildThreeBounceIndicator(color: gBlackColor),
+                        )
                       : navigationData.isEmpty
-                      ? const NoDataFound()
-                      : mainView(navigationData[0]),
+                          ? const NoDataFound()
+                          : widget.isDelivery
+                              ? mainView(
+                                  ashramName: navigationData[0]['res_name'],
+                                  ashramAddress: navigationData[0]['location'],
+                                  deliveryName: navigationData[0]['res_name'],
+                                  deliveryPickUp: "15 Mins",
+                                  deliveryDistance: "3.1 Kms",
+                                )
+                              : mainView(
+                                  ashramName: navigationData[0]['ashram_name'],
+                                  ashramAddress: navigationData[0]['address'],
+                                  deliveryName: navigationData[0]
+                                      ['ashram_name'],
+                                  deliveryPickUp: "15 Mins",
+                                  deliveryDistance: "3.1 Kms",
+                                ),
                 ),
               ),
             ],
@@ -112,7 +129,13 @@ class _NavigationPickUpState extends State<NavigationPickUp> {
     );
   }
 
-  mainView(Map<String, dynamic> navigationDetails) {
+  mainView({
+    String? ashramName,
+    String? ashramAddress,
+    String? deliveryName,
+    String? deliveryPickUp,
+    String? deliveryDistance,
+  }) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 6.w),
       child: Column(
@@ -127,7 +150,7 @@ class _NavigationPickUpState extends State<NavigationPickUp> {
             ),
           ),
           Text(
-            navigationDetails['ashram_name'] ?? "Hari Nagar Ashram",
+            ashramName ?? "Hari Nagar Ashram",
             style: TextStyle(
               fontFamily: kFontBold,
               fontSize: backButton,
@@ -135,7 +158,7 @@ class _NavigationPickUpState extends State<NavigationPickUp> {
             ),
           ),
           Text(
-            navigationDetails['address'] ?? "1298 A divine view main road",
+            ashramAddress ?? "1298 A divine view main road",
             style: TextStyle(
               fontFamily: kFontMedium,
               fontSize: textFieldHintText,
@@ -191,7 +214,7 @@ class _NavigationPickUpState extends State<NavigationPickUp> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        navigationDetails['ashram_name'],
+                        ashramName ?? 'Hari Nagar Ashram',
                         style: TextStyle(
                           fontSize: listHeadingSize,
                           fontFamily: listHeadingFont,
@@ -235,7 +258,7 @@ class _NavigationPickUpState extends State<NavigationPickUp> {
                 color: gBlackColor,
               ),
               "Pick Up",
-              "15 mins"),
+              "$deliveryPickUp"),
           SizedBox(height: 2.h),
           buildPickUp(
               Icon(
@@ -244,27 +267,19 @@ class _NavigationPickUpState extends State<NavigationPickUp> {
                 color: gBlackColor,
               ),
               "Distance",
-              "3.1 kms"),
+              "$deliveryDistance"),
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 5.h),
             child: ElevatedButton(
-              onPressed: widget.isDelivery ? () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) =>const DashboardScreen()
-                  ),
-                );
-              } : (){
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) => NavigationPickUp(
-                      ashramId: widget.ashramId.toString(),
-                      donorId: widget.donorId.toString(),
-                      isDelivery: true,
-                    ),
-                  ),
-                );
-              },
+              onPressed: isLoading
+                  ? null
+                  : () {
+                      submitConfirmStatus(
+                        widget.isDelivery ? "delivered" : "picked_up",
+                        "${_prefs?.getString(AppConfig.userId)}",
+                        widget.file['id'].toString(),
+                      );
+                    },
               style: ElevatedButton.styleFrom(
                 foregroundColor:
                     loginButtonSelectedColor, //change background color of button
@@ -275,14 +290,18 @@ class _NavigationPickUpState extends State<NavigationPickUp> {
                 elevation: 2.0,
               ),
               child: Center(
-                child: Text(
-                  widget.isDelivery ? "Confirm Delivery" : "Confirm Pick up",
-                  style: TextStyle(
-                    fontFamily: buttonFont,
-                    fontSize: buttonFontSize,
-                    color: buttonColor,
-                  ),
-                ),
+                child: (isLoading)
+                    ? buildThreeBounceIndicator(color: gBlackColor)
+                    : Text(
+                        widget.isDelivery
+                            ? "Confirm Delivery"
+                            : "Confirm Pick up",
+                        style: TextStyle(
+                          fontFamily: buttonFont,
+                          fontSize: buttonFontSize,
+                          color: buttonColor,
+                        ),
+                      ),
               ),
             ),
           ),
@@ -320,5 +339,47 @@ class _NavigationPickUpState extends State<NavigationPickUp> {
         ),
       ],
     );
+  }
+
+  bool isLoading = false;
+
+  final _prefs = AppConfig().preferences;
+
+  void submitConfirmStatus(
+    String status,
+    String volunteerId,
+    String requestId,
+  ) async {
+    setState(() {
+      isLoading = true;
+    });
+
+    print("volunteerId : $volunteerId");
+
+    try {
+      final res = await await supabase.from('ashram_requests').update(
+          {'status': status, 'volunteer_id': volunteerId}).eq('id', requestId);
+
+      print("submitConfirmStatus:$res");
+      print("submitConfirmStatus.runtimeType: ${res.runtimeType}");
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (context) => const DashboardScreen(
+            index: 1,
+          ),
+        ),
+      );
+    } on PostgrestException catch (error) {
+      AppConfig().showSnackbar(context, error.message, isError: true);
+    } catch (error) {
+      AppConfig()
+          .showSnackbar(context, 'Unexpected error occurred', isError: true);
+    } finally {
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
+    }
   }
 }

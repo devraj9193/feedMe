@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:feed_me/screens/login_screens/feed_me_screen.dart';
 import 'package:feed_me/utils/app_config.dart';
+import 'package:feed_me/utils/constants.dart';
 import 'package:feed_me/utils/widgets/open_alert_box.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_sizer/flutter_sizer.dart';
@@ -120,6 +121,7 @@ class _SplashScreenState extends State<SplashScreen> with WidgetsBindingObserver
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: gWhiteColor,
       body: Stack(
         children: <Widget>[
           PageView(
@@ -134,7 +136,7 @@ class _SplashScreenState extends State<SplashScreen> with WidgetsBindingObserver
             children: <Widget>[
               splashImage(),
                 isLogin
-                    ? const DashboardScreen()
+                    ? const DashboardScreen(index: 0,)
                     : const FeedMeScreen()
             ],
           ),

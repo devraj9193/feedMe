@@ -8,7 +8,7 @@ import '../../utils/widgets/will_pop_widget.dart';
 import 'google_map_screen.dart';
 
 class LiveTracking extends StatefulWidget {
-  const LiveTracking({super.key});
+  const LiveTracking({Key? key, }) : super(key: key);
 
   @override
   State<LiveTracking> createState() => _LiveTrackingState();

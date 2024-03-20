@@ -14,7 +14,7 @@ import '../../utils/widgets/widgets.dart';
 
 class AshramFoodRequestListScreen extends StatefulWidget {
   final dynamic volunteerData;
-  const AshramFoodRequestListScreen({super.key, required this.volunteerData});
+  const AshramFoodRequestListScreen({Key? key, required this.volunteerData}) : super(key: key);
 
   @override
   State<AshramFoodRequestListScreen> createState() =>
@@ -73,7 +73,7 @@ class _AshramFoodRequestListScreenState
                 () {
                   Navigator.of(context).push(
                     MaterialPageRoute(
-                      builder: (context) => const DashboardScreen(),
+                      builder: (context) => const DashboardScreen(index: 0,),
                     ),
                   );
                 },

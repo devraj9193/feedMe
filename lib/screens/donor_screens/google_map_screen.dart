@@ -11,7 +11,7 @@ import 'package:location/location.dart';
 import '../../utils/constants.dart';
 
 class GoogleMapScreen extends StatefulWidget {
-  const GoogleMapScreen({super.key});
+  const GoogleMapScreen({Key? key, }) : super(key: key);
 
   @override
   State<GoogleMapScreen> createState() => _GoogleMapScreenState();

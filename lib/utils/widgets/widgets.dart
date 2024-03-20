@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_sizer/flutter_sizer.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:im_animations/im_animations.dart';
+import 'package:image_cropper/image_cropper.dart';
 import '../constants.dart';
 
 buildCircularIndicator() {
@@ -197,6 +198,23 @@ buildAppBar(
       ),
     ],
   );
+}
+
+Future<CroppedFile?> cropSelectedImage(String filePath) async {
+  return await ImageCropper().cropImage(
+      sourcePath: filePath,
+      aspectRatio: const CropAspectRatio(ratioX: 1.0, ratioY: 1.0),
+      cropStyle: CropStyle.circle,
+      uiSettings: [
+        AndroidUiSettings(
+            toolbarColor: gBlackColor,
+            toolbarWidgetColor: Colors.white,
+            initAspectRatio: CropAspectRatioPreset.original,
+            lockAspectRatio: false),
+        IOSUiSettings(
+          title: 'Cropper',
+        ),
+      ]);
 }
 
 buildTapCount(String title, int count) {
