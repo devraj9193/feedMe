@@ -14,6 +14,7 @@ import '../../utils/widgets/widgets.dart';
 import '../../utils/widgets/will_pop_widget.dart';
 import '../donor_screens/donor_food_screen.dart';
 import '../volunteer_screens/ashram_food_request_list_screen.dart';
+import 'ngo_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key, }) : super(key: key);
@@ -58,6 +59,13 @@ class _HomeScreenState extends State<HomeScreen>
     try {
       final data = await supabase.from('ashrams').select('*');
 
+      final datas = await supabase
+          .from('ashrams')
+          .select('*')
+          .eq('ngo_id', _pref.getString(AppConfig.userId) as Object);
+
+      print("ngo : $datas");
+
       print("getDashboardData : $data");
 
       getDashboard = data;
@@ -87,7 +95,7 @@ class _HomeScreenState extends State<HomeScreen>
   Widget build(BuildContext context) {
     var subTitle = userType == "Donor" ? userRestaurant : userAddress;
 
-    return WillPopWidget(
+    return userType == "ngo" ? const NgoScreen() : WillPopWidget(
       child: Scaffold(
         body: SafeArea(
           child: loading

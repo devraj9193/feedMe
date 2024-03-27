@@ -12,7 +12,6 @@ import '../../utils/widgets/no_data_found.dart';
 import '../../utils/widgets/widgets.dart';
 
 import '../donor_screens/live_tracking.dart';
-import '../community_screens/navigation_pickup.dart';
 
 class VolunteerDeliveryDetails extends StatefulWidget {
   final dynamic volunteerData;

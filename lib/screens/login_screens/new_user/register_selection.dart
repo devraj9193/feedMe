@@ -58,7 +58,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   );
                 }),
                 SizedBox(height: 2.h),
-                buildLoginButtons('NGO', () {}),
+                // buildLoginButtons('NGO', () {}),
                 SizedBox(height: 20.h),
                 Center(
                   child: Image(
