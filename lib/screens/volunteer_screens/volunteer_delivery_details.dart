@@ -824,7 +824,7 @@ class _VolunteerDeliveryDetailsState extends State<VolunteerDeliveryDetails> {
     } finally {
       if (mounted) {
         setState(() {
-          isLoading = false;
+          acceptLoading = false;
         });
       }
     }

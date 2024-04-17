@@ -37,6 +37,8 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
 
+  carousel_slider: ^4.2.1
+
   flutter_sizer: ^1.0.5
   fl_country_code_picker: ^0.1.9+1
   pinput: any
@@ -66,6 +68,7 @@ dependencies:
 
 # file image upload package
   image_picker: any
+  file_picker: ^5.0.0
   image_cropper: any
   cached_network_image: ^3.3.1
 

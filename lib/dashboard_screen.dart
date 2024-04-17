@@ -1,8 +1,10 @@
 import 'package:feed_me/screens/community_screens/community_screen.dart';
 import 'package:feed_me/screens/home_screens/home_screen.dart';
 import 'package:feed_me/screens/location_screens/location_screen.dart';
+import 'package:feed_me/screens/new_home_screen/new_home_screen.dart';
 import 'package:feed_me/screens/notification_screens/notification_screen.dart';
 import 'package:feed_me/screens/profile_screens/profile_screen.dart';
+import 'package:feed_me/screens/profile_screens/settings_screen.dart';
 import 'package:feed_me/utils/app_config.dart';
 import 'package:feed_me/utils/constants.dart';
 import 'package:feed_me/utils/widgets/exit_widget.dart';
@@ -72,15 +74,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
     switch (index) {
       case 0:
         {
-          return const HomeScreen();
+          return const NewHomeScreen();
         }
       case 1:
         {
-          return const CommunityScreen();
+          return const HomeScreen();
         }
       case 2:
         {
-          return const LocationScreen();
+          return const CommunityScreen();
         }
       case 3:
         {
@@ -88,7 +90,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
         }
       case 4:
         {
-          return const ProfileScreen();
+          return const SettingsScreen();
+            //return const ProfileScreen();
         }
     }
   }

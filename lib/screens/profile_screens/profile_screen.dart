@@ -105,8 +105,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     buildAppBar(
-                      () {},
-                      isBackEnable: false,
+                      () {Navigator.pop(context);},
+                      isBackEnable: true,
                       showLogo: false,
                       showChild: true,
                       child: Text(
@@ -147,20 +147,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 ),
                               ),
                               SizedBox(width: 3.w),
-                              GestureDetector(
-                                onTap: () => AppConfig().showSheet(
-                                  context,
-                                  logoutWidget(),
-                                  bottomSheetHeight: 45.h,
-                                  isDismissible: true,
-                                ),
-                                child: Icon(
-                                  Icons.logout_sharp,
-                                  color: gBlackColor,
-                                  size: 2.h,
-                                ),
-                              ),
-                              SizedBox(width: 3.w),
+                              // GestureDetector(
+                              //   onTap: () => AppConfig().showSheet(
+                              //     context,
+                              //     logoutWidget(),
+                              //     bottomSheetHeight: 45.h,
+                              //     isDismissible: true,
+                              //   ),
+                              //   child: Icon(
+                              //     Icons.logout_sharp,
+                              //     color: gBlackColor,
+                              //     size: 2.h,
+                              //   ),
+                              // ),
+                              // SizedBox(width: 3.w),
                             ],
                           )
                         : Padding(
@@ -222,7 +222,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               backgroundImage: (_image != null)
                   ? FileImage(_image!)
                   : CachedNetworkImageProvider(
-                  getProfilePic,
+                      profileDetails['profile_pic'] ?? '',
                       errorListener: (image) {
                       print("image error");
                       setState(() => photoError = true);
@@ -336,7 +336,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 style: ElevatedButton.styleFrom(
                   foregroundColor:
                       loginButtonSelectedColor, //change background color of button
-                  backgroundColor: loginButtonColor, //change text color of button
+                  backgroundColor:
+                      loginButtonColor, //change text color of button
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -375,7 +376,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             style: TextStyle(
               color: gHintTextColor,
               fontFamily: kFontBook,
-              fontSize: 10.dp,
+              fontSize: 13.dp,
             ),
           ),
           SizedBox(height: 1.h),
@@ -411,7 +412,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 style: TextStyle(
                   color: gBlackColor,
                   fontFamily: kFontBold,
-                  fontSize: 11.dp,
+                  fontSize: 15.dp,
                 ),
               ),
               Container(
@@ -575,7 +576,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           return Wrap(
             children: [
               Container(
-                padding: EdgeInsets.symmetric(vertical: 2.h,horizontal: 5.w),
+                padding: EdgeInsets.symmetric(vertical: 2.h, horizontal: 5.w),
                 decoration: const BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.only(
@@ -653,7 +654,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     Icons.photo_library,
                                     color: appPrimaryColor,
                                     size: 2.5.h,
-                                  ), SizedBox(width: 1.5.w),
+                                  ),
+                                  SizedBox(width: 1.5.w),
                                   Text(
                                     'Gallery',
                                     style: TextStyle(
@@ -710,14 +712,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   updateProfileData() async {
-
     final avatarFile = _image;
 
     final String path = await supabase.storage.from('profile_pic').upload(
-      "${_pref.getString(AppConfig.userName)}.png",
-      avatarFile!,
-      fileOptions: const FileOptions(cacheControl: '3600', upsert: false),
-    );
+          "${_pref.getString(AppConfig.userName)}.png",
+          avatarFile!,
+          fileOptions: const FileOptions(cacheControl: '3600', upsert: false),
+        );
 
     print("Profile update : $path");
 
