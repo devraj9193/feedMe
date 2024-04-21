@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_sizer/flutter_sizer.dart';
 import 'package:image_network/image_network.dart';
 import 'package:intl/intl.dart';
+import 'package:location/location.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -10,7 +11,6 @@ import '../../dashboard_screen.dart';
 import '../../main.dart';
 import '../../utils/app_config.dart';
 import '../../utils/constants.dart';
-import '../../utils/widgets/no_data_found.dart';
 import '../../utils/widgets/widgets.dart';
 import '../../utils/widgets/will_pop_widget.dart';
 import 'feed_list.dart';
@@ -41,6 +41,24 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
   void initState() {
     super.initState();
     getCardFeedData();
+    getCurrentLocation();
+  }
+
+  getCurrentLocation() async {
+    Location location = Location();
+
+    location.onLocationChanged.listen((event) {
+      LocationData? currentLocation = event;
+
+      _pref.setDouble(
+          AppConfig.userLongitude, currentLocation.longitude ?? 0.0);
+      _pref.setDouble(AppConfig.userLatitude, currentLocation.latitude ?? 0.0);
+
+      print("userLongitude : ${_pref.getDouble(AppConfig.userLongitude)}");
+      print("userLatitude : ${_pref.getDouble(AppConfig.userLatitude)}");
+
+      setState(() {});
+    });
   }
 
   @override
@@ -92,6 +110,8 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    print("user Type : $userType");
+
     var subTitle = userType == "Donor" ? userRestaurant : userAddress;
 
     return WillPopWidget(
@@ -102,156 +122,218 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                   padding: EdgeInsets.symmetric(vertical: 35.h),
                   child: buildThreeBounceIndicator(color: gBlackColor),
                 )
-              : userType == "Volunteer"
-                  ? FeedList(
-                      isButton: true,
-                      feedList: getFeedList,
-                    )
-                  : Column(
+              : Column(
+                  children: [
+                    SizedBox(height: 1.h),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        SizedBox(height: 1.h),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            buildAppBar(
-                              () {},
-                              isBackEnable: false,
-                              showLogo: false,
-                              showChild: true,
-                              child: Row(
+                        buildAppBar(
+                          () {},
+                          isBackEnable: false,
+                          showLogo: false,
+                          showChild: true,
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.location_on_outlined,
+                                color: gBlackColor,
+                                size: 3.5.h,
+                              ),
+                              SizedBox(width: 1.w),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Icon(
-                                    Icons.location_on_outlined,
-                                    color: gBlackColor,
-                                    size: 3.5.h,
+                                  Text(
+                                    "Welcome ${toBeginningOfSentenceCase(userName)}",
+                                    style: TextStyle(
+                                      fontFamily: kFontBold,
+                                      fontSize: backButton,
+                                      color: gBlackColor,
+                                    ),
                                   ),
-                                  SizedBox(width: 1.w),
-                                  Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        "Welcome ${toBeginningOfSentenceCase(userName)}",
-                                        style: TextStyle(
-                                          fontFamily: kFontBold,
-                                          fontSize: backButton,
-                                          color: gBlackColor,
-                                        ),
-                                      ),
-                                      Text(
-                                        subTitle ?? "",
-                                        style: TextStyle(
-                                          fontFamily: kFontBook,
-                                          fontSize: otpSubHeading,
-                                          color: gBlackColor,
-                                        ),
-                                      ),
-                                    ],
+                                  Text(
+                                    subTitle ?? "",
+                                    style: TextStyle(
+                                      fontFamily: kFontBook,
+                                      fontSize: otpSubHeading,
+                                      color: gBlackColor,
+                                    ),
                                   ),
                                 ],
                               ),
-                            ),
-                            Padding(
-                              padding: EdgeInsets.only(right: 3.w),
-                              child: Container(
-                                height: 35,
-                                width: 35,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  border: Border.all(
-                                    color: gGreyColor.withOpacity(0.5),
-                                  ),
-                                ),
-                                child: ImageNetwork(
-                                  image: '',
-                                  height: 35,
-                                  width: 35,
-                                  // duration: 1500,
-                                  curve: Curves.easeIn,
-                                  onPointer: true,
-                                  debugPrint: false,
-                                  fullScreen: false,
-                                  fitAndroidIos: BoxFit.cover,
-                                  fitWeb: BoxFitWeb.contain,
-                                  borderRadius: BorderRadius.circular(70),
-                                  onError: Icon(
-                                    Icons.person,
-                                    color: gGreyColor.withOpacity(0.5),
-                                  ),
-                                  onTap: () {
-                                    Navigator.of(context).pushReplacement(
-                                      MaterialPageRoute(
-                                        builder: (context) =>
-                                            const DashboardScreen(
-                                          index: 4,
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        Container(
-                          height: 5.h,
-                          padding: EdgeInsets.symmetric(horizontal: 1.w),
-                          margin: EdgeInsets.symmetric(
-                              horizontal: 3.w, vertical: 2.h),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(15),
-                            color: loginButtonSelectedColor,
-                          ),
-                          child: TextFormField(
-                            cursorColor: gGreyColor,
-                            controller: searchController,
-                            textAlign: TextAlign.start,
-                            decoration: InputDecoration(
-                              prefixIcon: Icon(
-                                Icons.search,
-                                color: textFieldHintColor.withOpacity(0.5),
-                                size: 2.5.h,
-                              ),
-                              suffixIcon: GestureDetector(
-                                onTap: () {
-                                  setState(() {
-                                    searchController.clear();
-                                  });
-                                },
-                                child: Icon(
-                                  Icons.cancel_outlined,
-                                  color: textFieldHintColor.withOpacity(0.5),
-                                  size: 2.5.h,
-                                ),
-                              ),
-                              hintText: "Search for NGO or Hunger spots",
-                              hintStyle: TextStyle(
-                                fontFamily: textFieldHintFont,
-                                color: textFieldHintColor.withOpacity(0.5),
-                                fontSize: textFieldHintText,
-                              ),
-                              border: InputBorder.none,
-                            ),
-                            style: TextStyle(
-                                fontFamily: textFieldFont,
-                                fontSize: textFieldText,
-                                color: textFieldColor),
-                            onChanged: (value) {},
+                            ],
                           ),
                         ),
-                        buildCards(),
-                        const Divider(),
-                         Expanded(
-                          child: SingleChildScrollView(
-                            child: FeedList(
-                              feedList: getFeedList,
+                        Padding(
+                          padding: EdgeInsets.only(right: 3.w),
+                          child: Container(
+                            height: 35,
+                            width: 35,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: gGreyColor.withOpacity(0.5),
+                              ),
+                            ),
+                            child: ImageNetwork(
+                              image: '',
+                              height: 35,
+                              width: 35,
+                              // duration: 1500,
+                              curve: Curves.easeIn,
+                              onPointer: true,
+                              debugPrint: false,
+                              fullScreen: false,
+                              fitAndroidIos: BoxFit.cover,
+                              fitWeb: BoxFitWeb.contain,
+                              borderRadius: BorderRadius.circular(70),
+                              onError: Icon(
+                                Icons.person,
+                                color: gGreyColor.withOpacity(0.5),
+                              ),
+                              onTap: () {
+                                Navigator.of(context).pushReplacement(
+                                  MaterialPageRoute(
+                                    builder: (context) => const DashboardScreen(
+                                      index: 4,
+                                    ),
+                                  ),
+                                );
+                              },
                             ),
                           ),
                         ),
                       ],
                     ),
+                    // Container(
+                    //   height: 5.h,
+                    //   padding: EdgeInsets.symmetric(horizontal: 1.w),
+                    //   margin: EdgeInsets.symmetric(
+                    //       horizontal: 3.w, vertical: 2.h),
+                    //   decoration: BoxDecoration(
+                    //     borderRadius: BorderRadius.circular(15),
+                    //     color: loginButtonSelectedColor,
+                    //   ),
+                    //   child: TextFormField(
+                    //     cursorColor: gGreyColor,
+                    //     controller: searchController,
+                    //     textAlign: TextAlign.start,
+                    //     decoration: InputDecoration(
+                    //       prefixIcon: Icon(
+                    //         Icons.search,
+                    //         color: textFieldHintColor.withOpacity(0.5),
+                    //         size: 2.5.h,
+                    //       ),
+                    //       suffixIcon: GestureDetector(
+                    //         onTap: () {
+                    //           setState(() {
+                    //             searchController.clear();
+                    //           });
+                    //         },
+                    //         child: Icon(
+                    //           Icons.cancel_outlined,
+                    //           color: textFieldHintColor.withOpacity(0.5),
+                    //           size: 2.5.h,
+                    //         ),
+                    //       ),
+                    //       hintText: "Search for NGO or Hunger spots",
+                    //       hintStyle: TextStyle(
+                    //         fontFamily: textFieldHintFont,
+                    //         color: textFieldHintColor.withOpacity(0.5),
+                    //         fontSize: textFieldHintText,
+                    //       ),
+                    //       border: InputBorder.none,
+                    //     ),
+                    //     style: TextStyle(
+                    //         fontFamily: textFieldFont,
+                    //         fontSize: textFieldText,
+                    //         color: textFieldColor),
+                    //     onChanged: (value) {},
+                    //   ),
+                    // ),
+
+                    Expanded(
+                      child: userType == "Volunteer"
+                          ? buildVolunteer(isButton: true)
+                          : userType == "Donor"
+                              ? buildVolunteer()
+                              : SingleChildScrollView(
+                                  child: Column(
+                                    children: [
+                                      buildCards(),
+                                      const Divider(),
+                                      FeedList(
+                                        feedList: getFeedList,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                    ),
+                  ],
+                ),
         ),
       ),
+    );
+  }
+
+  buildVolunteer({bool? isButton = false}) {
+    return Column(
+      children: [
+        Expanded(
+          child: SingleChildScrollView(
+            child: FeedList(
+              isButton: isButton!,
+              feedList: getFeedList,
+            ),
+          ),
+        ),
+        isButton
+            ? Container(
+                margin: EdgeInsets.symmetric(vertical: 1.h, horizontal: 3.w),
+                padding: EdgeInsets.symmetric(vertical: 2.h, horizontal: 3.w),
+                width: double.maxFinite,
+                decoration: BoxDecoration(
+                  color: gWhiteColor,
+                  borderRadius: BorderRadius.circular(10),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.3),
+                      blurRadius: 10,
+                      offset: const Offset(2, 3),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    GestureDetector(
+                      onTap: () {},
+                      child: Text(
+                        "Activity",
+                        style: TextStyle(
+                          fontSize: 14.dp,
+                          fontFamily: kFontMedium,
+                          color: gTextColor,
+                        ),
+                      ),
+                    ),
+                    GestureDetector(
+                      onTap: () {},
+                      child: Text(
+                        "Donation",
+                        style: TextStyle(
+                          fontSize: 14.dp,
+                          fontFamily: kFontMedium,
+                          color: gTextColor,
+                        ),
+                      ),
+                    )
+                  ],
+                ),
+              )
+            : const SizedBox(),
+      ],
     );
   }
 

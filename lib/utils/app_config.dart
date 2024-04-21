@@ -63,6 +63,9 @@ class AppConfig{
   static const String userRestaurant = "userRestaurant";
   static const String userAddress = "userAddress";
 
+  static const String userLongitude = "userLongitude";
+  static const String userLatitude = "userLatitude";
+
 
   static const String User_Profile = "profile_pic";
   static const String User_Phone = "userPhone";

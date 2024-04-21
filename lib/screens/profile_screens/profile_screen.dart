@@ -322,8 +322,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
         SizedBox(height: 4.h),
         profileTile("First Name: ", profileDetails['f_name'] ?? ''),
         profileTile("Last Name: ", profileDetails['l_name'] ?? ''),
-        profileTile("Age: ", profileDetails['age'] ?? ''),
-        genderTile('Gender', profileDetails['gender'] ?? ''),
+        profileDetails['age'] == null ?  const SizedBox() : profileTile("Age: ", profileDetails['age'] ?? ''),
+        profileDetails['gender'] == null ?  const SizedBox() : genderTile('Gender', profileDetails['gender'] ?? ''),
         SizedBox(height: 4.h),
         Visibility(
           visible: isEdit,

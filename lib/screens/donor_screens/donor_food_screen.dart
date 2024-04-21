@@ -71,18 +71,18 @@ class _DonorFoodScreenState extends State<DonorFoodScreen> {
     });
   }
 
-  @override
-  void dispose() {
-    foodItemsController.removeListener(() {});
-    foodQuantityController.removeListener(() {});
-    cookingDateController.removeListener(() {});
-    cookingTimeController.removeListener(() {});
-    pickupTimeController.removeListener(() {});
-    expectationDateController.removeListener(() {});
-    expectationTimeController.removeListener(() {});
-    specialInstructionsController.removeListener(() {});
-    super.dispose();
-  }
+  // @override
+  // void dispose() {
+  //   foodItemsController.removeListener(() {});
+  //   foodQuantityController.removeListener(() {});
+  //   cookingDateController.removeListener(() {});
+  //   cookingTimeController.removeListener(() {});
+  //   pickupTimeController.removeListener(() {});
+  //   expectationDateController.removeListener(() {});
+  //   expectationTimeController.removeListener(() {});
+  //   specialInstructionsController.removeListener(() {});
+  //   super.dispose();
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -96,7 +96,7 @@ class _DonorFoodScreenState extends State<DonorFoodScreen> {
                 () {
                   Navigator.of(context).push(
                     MaterialPageRoute(
-                      builder: (context) => const DashboardScreen(index: 0,),
+                      builder: (context) => const DashboardScreen(index: 1,),
                     ),
                   );
                 },

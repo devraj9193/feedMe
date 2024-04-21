@@ -93,6 +93,9 @@ class _HomeScreenState extends State<HomeScreen>
 
   @override
   Widget build(BuildContext context) {
+
+    print("User Type : $userType");
+
     var subTitle = userType == "Donor" ? userRestaurant : userAddress;
 
     return userType == "ngo" ? const NgoScreen() : WillPopWidget(
@@ -190,52 +193,52 @@ class _HomeScreenState extends State<HomeScreen>
                             ),
                           ],
                         ),
-                        Container(
-                          height: 6.h,
-                          padding: EdgeInsets.symmetric(horizontal: 1.w),
-                          margin: EdgeInsets.symmetric(
-                              horizontal: 3.w, vertical: 2.h),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(15),
-                            color: loginButtonSelectedColor,
-                          ),
-                          child: TextFormField(
-                            cursorColor: gGreyColor,
-                            controller: searchController,
-                            textAlign: TextAlign.start,
-                            decoration: InputDecoration(
-                              prefixIcon: Icon(
-                                Icons.search,
-                                color: textFieldHintColor.withOpacity(0.5),
-                                size: 2.5.h,
-                              ),
-                              suffixIcon: GestureDetector(
-                                onTap: () {
-                                  setState(() {
-                                    searchController.clear();
-                                  });
-                                },
-                                child: Icon(
-                                  Icons.cancel_outlined,
-                                  color: textFieldHintColor.withOpacity(0.5),
-                                  size: 2.5.h,
-                                ),
-                              ),
-                              hintText: "Search for NGO or Hunger spots",
-                              hintStyle: TextStyle(
-                                fontFamily: textFieldHintFont,
-                                color: textFieldHintColor.withOpacity(0.5),
-                                fontSize: textFieldHintText,
-                              ),
-                              border: InputBorder.none,
-                            ),
-                            style: TextStyle(
-                                fontFamily: textFieldFont,
-                                fontSize: textFieldText,
-                                color: textFieldColor),
-                            onChanged: (value) {},
-                          ),
-                        ),
+                        // Container(
+                        //   height: 6.h,
+                        //   padding: EdgeInsets.symmetric(horizontal: 1.w),
+                        //   margin: EdgeInsets.symmetric(
+                        //       horizontal: 3.w, vertical: 2.h),
+                        //   decoration: BoxDecoration(
+                        //     borderRadius: BorderRadius.circular(15),
+                        //     color: loginButtonSelectedColor,
+                        //   ),
+                        //   child: TextFormField(
+                        //     cursorColor: gGreyColor,
+                        //     controller: searchController,
+                        //     textAlign: TextAlign.start,
+                        //     decoration: InputDecoration(
+                        //       prefixIcon: Icon(
+                        //         Icons.search,
+                        //         color: textFieldHintColor.withOpacity(0.5),
+                        //         size: 2.5.h,
+                        //       ),
+                        //       suffixIcon: GestureDetector(
+                        //         onTap: () {
+                        //           setState(() {
+                        //             searchController.clear();
+                        //           });
+                        //         },
+                        //         child: Icon(
+                        //           Icons.cancel_outlined,
+                        //           color: textFieldHintColor.withOpacity(0.5),
+                        //           size: 2.5.h,
+                        //         ),
+                        //       ),
+                        //       hintText: "Search for NGO or Hunger spots",
+                        //       hintStyle: TextStyle(
+                        //         fontFamily: textFieldHintFont,
+                        //         color: textFieldHintColor.withOpacity(0.5),
+                        //         fontSize: textFieldHintText,
+                        //       ),
+                        //       border: InputBorder.none,
+                        //     ),
+                        //     style: TextStyle(
+                        //         fontFamily: textFieldFont,
+                        //         fontSize: textFieldText,
+                        //         color: textFieldColor),
+                        //     onChanged: (value) {},
+                        //   ),
+                        // ),
                         Expanded(
                           child: SingleChildScrollView(
                             child: buildList(),

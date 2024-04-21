@@ -13,6 +13,7 @@ import '../../utils/widgets/no_data_found.dart';
 import '../../utils/widgets/widgets.dart';
 import '../../utils/widgets/will_pop_widget.dart';
 import '../community_screens/navigation_pickup.dart';
+import 'feedback_screen.dart';
 
 class NgoScreen extends StatefulWidget {
   const NgoScreen({super.key});
@@ -21,7 +22,8 @@ class NgoScreen extends StatefulWidget {
   State<NgoScreen> createState() => _NgoScreenState();
 }
 
-class _NgoScreenState extends State<NgoScreen> with SingleTickerProviderStateMixin {
+class _NgoScreenState extends State<NgoScreen>
+    with SingleTickerProviderStateMixin {
   TabController? tabController;
   final searchController = TextEditingController();
 
@@ -55,18 +57,16 @@ class _NgoScreenState extends State<NgoScreen> with SingleTickerProviderStateMix
     });
 
     try {
-
       final data = await supabase
           .from('ashrams')
           .select('*')
           .eq('ngo_id', _pref.getString(AppConfig.userId) as Object);
 
-
       print("getDashboardNGOData : $data");
 
       getDashboard = data;
 
-      if(getDashboard.isNotEmpty){
+      if (getDashboard.isNotEmpty) {
         setState(() {
           userName = getDashboard[0]['ashram_name'] ?? '';
           userType = _pref.getString(AppConfig.userType) ?? '';
@@ -75,7 +75,6 @@ class _NgoScreenState extends State<NgoScreen> with SingleTickerProviderStateMix
         });
         getNgoData(getDashboard[0]['id']);
       }
-
     } on PostgrestException catch (error) {
       AppConfig().showSnackbar(context, error.message, isError: true);
     } catch (error) {
@@ -99,12 +98,10 @@ class _NgoScreenState extends State<NgoScreen> with SingleTickerProviderStateMix
     });
 
     try {
-
       final data = await supabase
           .from('ashram_requests')
           .select('*')
           .eq('ashram_id', ashramId);
-
 
       print("getDashboardNGOData : $data");
 
@@ -117,13 +114,12 @@ class _NgoScreenState extends State<NgoScreen> with SingleTickerProviderStateMix
           getDeliveredData.add(element);
 
           print("getDeliveredData : $getDeliveredData");
-        }else if(element['status'] == "picked_up") {
+        } else if (element['status'] == "picked_up") {
           getPickedUpData.add(element);
 
           print("getPickedUpData : $getPickedUpData");
         }
       }
-
     } on PostgrestException catch (error) {
       AppConfig().showSnackbar(context, error.message, isError: true);
     } catch (error) {
@@ -140,167 +136,168 @@ class _NgoScreenState extends State<NgoScreen> with SingleTickerProviderStateMix
 
   @override
   Widget build(BuildContext context) {
-    return  WillPopWidget(
+    return WillPopWidget(
       child: Scaffold(
         body: SafeArea(
           child: loading
               ? Padding(
-            padding: EdgeInsets.symmetric(vertical: 35.h),
-            child: buildThreeBounceIndicator(color: gBlackColor),
-          )
+                  padding: EdgeInsets.symmetric(vertical: 35.h),
+                  child: buildThreeBounceIndicator(color: gBlackColor),
+                )
               : getDashboard.isEmpty
-              ? const NoDataFound()
-              : Column(
-            children: [
-              SizedBox(height: 1.h),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  buildAppBar(
-                        () {},
-                    isBackEnable: false,
-                    showLogo: false,
-                    showChild: true,
-                    child: Row(
+                  ? const NoDataFound()
+                  : Column(
                       children: [
-                        Icon(
-                          Icons.location_on_outlined,
-                          color: gBlackColor,
-                          size: 3.5.h,
+                        SizedBox(height: 1.h),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            buildAppBar(
+                              () {},
+                              isBackEnable: false,
+                              showLogo: false,
+                              showChild: true,
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    Icons.location_on_outlined,
+                                    color: gBlackColor,
+                                    size: 3.5.h,
+                                  ),
+                                  SizedBox(width: 1.w),
+                                  Text(
+                                    "Welcome ${toBeginningOfSentenceCase(userName)}",
+                                    style: TextStyle(
+                                      fontFamily: kFontBold,
+                                      fontSize: backButton,
+                                      color: gBlackColor,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Padding(
+                              padding: EdgeInsets.only(right: 3.w),
+                              child: Container(
+                                height: 35,
+                                width: 35,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                    color: gGreyColor.withOpacity(0.5),
+                                  ),
+                                ),
+                                child: ImageNetwork(
+                                  image: '',
+                                  height: 35,
+                                  width: 35,
+                                  // duration: 1500,
+                                  curve: Curves.easeIn,
+                                  onPointer: true,
+                                  debugPrint: false,
+                                  fullScreen: false,
+                                  fitAndroidIos: BoxFit.cover,
+                                  fitWeb: BoxFitWeb.contain,
+                                  borderRadius: BorderRadius.circular(70),
+                                  onError: Icon(
+                                    Icons.person,
+                                    color: gGreyColor.withOpacity(0.5),
+                                  ),
+                                  onTap: () {
+                                    Navigator.of(context).pushReplacement(
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            const DashboardScreen(
+                                          index: 4,
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
-                        SizedBox(width: 1.w),
-                        Text(
-                          "Welcome ${toBeginningOfSentenceCase(userName)}",
-                          style: TextStyle(
+                        // Container(
+                        //   height: 6.h,
+                        //   padding: EdgeInsets.symmetric(horizontal: 1.w),
+                        //   margin: EdgeInsets.symmetric(
+                        //       horizontal: 3.w, vertical: 2.h),
+                        //   decoration: BoxDecoration(
+                        //     borderRadius: BorderRadius.circular(15),
+                        //     color: loginButtonSelectedColor,
+                        //   ),
+                        //   child: TextFormField(
+                        //     cursorColor: gGreyColor,
+                        //     controller: searchController,
+                        //     textAlign: TextAlign.start,
+                        //     decoration: InputDecoration(
+                        //       prefixIcon: Icon(
+                        //         Icons.search,
+                        //         color: textFieldHintColor.withOpacity(0.5),
+                        //         size: 2.5.h,
+                        //       ),
+                        //       suffixIcon: GestureDetector(
+                        //         onTap: () {
+                        //           setState(() {
+                        //             searchController.clear();
+                        //           });
+                        //         },
+                        //         child: Icon(
+                        //           Icons.cancel_outlined,
+                        //           color: textFieldHintColor.withOpacity(0.5),
+                        //           size: 2.5.h,
+                        //         ),
+                        //       ),
+                        //       hintText: "Search for NGO or Hunger spots",
+                        //       hintStyle: TextStyle(
+                        //         fontFamily: textFieldHintFont,
+                        //         color: textFieldHintColor.withOpacity(0.5),
+                        //         fontSize: textFieldHintText,
+                        //       ),
+                        //       border: InputBorder.none,
+                        //     ),
+                        //     style: TextStyle(
+                        //         fontFamily: textFieldFont,
+                        //         fontSize: textFieldText,
+                        //         color: textFieldColor),
+                        //     onChanged: (value) {},
+                        //   ),
+                        // ),
+                        TabBar(
+                          controller: tabController,
+                          labelColor: gBlackColor,
+                          unselectedLabelColor: gGreyColor.withOpacity(0.5),
+                          indicatorColor: gBlackColor,
+                          labelStyle: TextStyle(
                             fontFamily: kFontBold,
-                            fontSize: backButton,
-                            color: gBlackColor,
+                            color: gPrimaryColor,
+                            fontSize: tapSelectedSize,
+                          ),
+                          unselectedLabelStyle: TextStyle(
+                            fontFamily: tapFont,
+                            color: gHintTextColor,
+                            fontSize: tapUnSelectedSize,
+                          ),
+                          labelPadding: EdgeInsets.only(
+                              right: 0.w, left: 0.w, top: 1.h, bottom: 1.h),
+                          tabs: const [
+                            Text('Picked Up'),
+                            Text('Delivered'),
+                          ],
+                        ),
+                        Expanded(
+                          child: TabBarView(
+                            controller: tabController,
+                            // physics: const NeverScrollableScrollPhysics(),
+                            children: [
+                              buildList(getPickedUpData),
+                              buildList(getDeliveredData),
+                            ],
                           ),
                         ),
                       ],
                     ),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.only(right: 3.w),
-                    child: Container(
-                      height: 35,
-                      width: 35,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: gGreyColor.withOpacity(0.5),
-                        ),
-                      ),
-                      child: ImageNetwork(
-                        image: '',
-                        height: 35,
-                        width: 35,
-                        // duration: 1500,
-                        curve: Curves.easeIn,
-                        onPointer: true,
-                        debugPrint: false,
-                        fullScreen: false,
-                        fitAndroidIos: BoxFit.cover,
-                        fitWeb: BoxFitWeb.contain,
-                        borderRadius: BorderRadius.circular(70),
-                        onError: Icon(
-                          Icons.person,
-                          color: gGreyColor.withOpacity(0.5),
-                        ),
-                        onTap: () {
-                          Navigator.of(context).pushReplacement(
-                            MaterialPageRoute(
-                              builder: (context) => const DashboardScreen(
-                                index: 4,
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              Container(
-                height: 6.h,
-                padding: EdgeInsets.symmetric(horizontal: 1.w),
-                margin: EdgeInsets.symmetric(
-                    horizontal: 3.w, vertical: 2.h),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(15),
-                  color: loginButtonSelectedColor,
-                ),
-                child: TextFormField(
-                  cursorColor: gGreyColor,
-                  controller: searchController,
-                  textAlign: TextAlign.start,
-                  decoration: InputDecoration(
-                    prefixIcon: Icon(
-                      Icons.search,
-                      color: textFieldHintColor.withOpacity(0.5),
-                      size: 2.5.h,
-                    ),
-                    suffixIcon: GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          searchController.clear();
-                        });
-                      },
-                      child: Icon(
-                        Icons.cancel_outlined,
-                        color: textFieldHintColor.withOpacity(0.5),
-                        size: 2.5.h,
-                      ),
-                    ),
-                    hintText: "Search for NGO or Hunger spots",
-                    hintStyle: TextStyle(
-                      fontFamily: textFieldHintFont,
-                      color: textFieldHintColor.withOpacity(0.5),
-                      fontSize: textFieldHintText,
-                    ),
-                    border: InputBorder.none,
-                  ),
-                  style: TextStyle(
-                      fontFamily: textFieldFont,
-                      fontSize: textFieldText,
-                      color: textFieldColor),
-                  onChanged: (value) {},
-                ),
-              ),
-              TabBar(
-                controller: tabController,
-                labelColor: gBlackColor,
-                unselectedLabelColor: gGreyColor.withOpacity(0.5),
-                indicatorColor: gBlackColor,
-                labelStyle: TextStyle(
-                  fontFamily: kFontBold,
-                  color: gPrimaryColor,
-                  fontSize: tapSelectedSize,
-                ),
-                unselectedLabelStyle: TextStyle(
-                  fontFamily: tapFont,
-                  color: gHintTextColor,
-                  fontSize: tapUnSelectedSize,
-                ),
-                labelPadding: EdgeInsets.only(
-                    right: 0.w, left: 0.w, top: 1.h, bottom: 1.h),
-                tabs: const [
-                  Text('Picked Up'),
-                  Text('Delivered'),
-                ],
-              ),
-              Expanded(
-                child: TabBarView(
-                  controller: tabController,
-                  // physics: const NeverScrollableScrollPhysics(),
-                  children: [
-                    buildList(getPickedUpData),
-                    buildList(getDeliveredData),
-                  ],
-                ),
-              ),
-            ],
-          ),
         ),
       ),
     );
@@ -518,7 +515,15 @@ class _NgoScreenState extends State<NgoScreen> with SingleTickerProviderStateMix
         ),
       );
     } else if (file['status'] == "delivered") {
-      deliveredWidget(context);
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) =>  FeedbackScreen(
+            file: file,
+          ),
+        ),
+      );
+
+      // deliveredWidget(context);
     } else {}
   }
 
@@ -582,41 +587,41 @@ class _NgoScreenState extends State<NgoScreen> with SingleTickerProviderStateMix
                     (showDeliveredProgress)
                         ? Center(child: buildCircularIndicator())
                         : Padding(
-                      padding: EdgeInsets.symmetric(
-                          horizontal: 2.w, vertical: 1.h),
-                      child: ElevatedButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                          // Navigator.of(context).push(
-                          //   MaterialPageRoute(
-                          //     builder: (context) =>
-                          //     // SitBackScreen(),
-                          //     const FeedMeScreen(),
-                          //   ),
-                          // );
-                        },
-                        style: ElevatedButton.styleFrom(
-                          foregroundColor:
-                          loginButtonSelectedColor, //change background color of button
-                          backgroundColor:
-                          loginButtonColor, //change text color of button
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          elevation: 2.0,
-                        ),
-                        child: Center(
-                          child: Text(
-                            "YAY!",
-                            style: TextStyle(
-                              fontFamily: buttonFont,
-                              fontSize: buttonFontSize,
-                              color: buttonColor,
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 2.w, vertical: 1.h),
+                            child: ElevatedButton(
+                              onPressed: () {
+                                Navigator.pop(context);
+                                // Navigator.of(context).push(
+                                //   MaterialPageRoute(
+                                //     builder: (context) =>
+                                //     // SitBackScreen(),
+                                //     const FeedMeScreen(),
+                                //   ),
+                                // );
+                              },
+                              style: ElevatedButton.styleFrom(
+                                foregroundColor:
+                                    loginButtonSelectedColor, //change background color of button
+                                backgroundColor:
+                                    loginButtonColor, //change text color of button
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                elevation: 2.0,
+                              ),
+                              child: Center(
+                                child: Text(
+                                  "YAY!",
+                                  style: TextStyle(
+                                    fontFamily: buttonFont,
+                                    fontSize: buttonFontSize,
+                                    color: buttonColor,
+                                  ),
+                                ),
+                              ),
                             ),
                           ),
-                        ),
-                      ),
-                    ),
                   ],
                 ),
               ),

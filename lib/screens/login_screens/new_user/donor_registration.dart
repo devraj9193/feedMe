@@ -384,21 +384,11 @@ class _DonorRegistrationState extends State<DonorRegistration> {
             Form(
               autovalidateMode: AutovalidateMode.disabled,
               key: restaurantsNameFormKey,
-              child: DropdownButtonFormField(
-                icon: Icon(
-                  Icons.keyboard_arrow_down_sharp,
-                  color: gGreyColor.withOpacity(0.5),
-                  size: 3.h,
-                ),
-                style: TextStyle(
-                  fontFamily: textFieldFont,
-                  fontSize: textFieldText,
-                  color: textFieldColor,
-                ),
-                onChanged: (v) {
-                  restaurantNameController.text = v.toString();
-                },
+              child: TextFormField(
+                controller: restaurantNameController,
+                cursorColor: gGreyColor,
                 decoration: InputDecoration(
+                  hintText: "Enter your restaurant's name",
                   hintStyle: TextStyle(
                     fontFamily: textFieldHintFont,
                     color: textFieldHintColor.withOpacity(0.5),
@@ -414,20 +404,65 @@ class _DonorRegistrationState extends State<DonorRegistration> {
                       color: textFieldUnderLineColor,
                     ),
                   ),
-                  hintText: "Enter your restaurant's name",
+                  suffixIcon: filterPopUp(),
                 ),
-                items: [
-                  ...restaurantNameList.map((e) {
-                    return DropdownMenuItem(
-                      value: e,
-                      child: Text(
-                        e,
-                      ),
-                    );
-                  }).toList(),
-                ],
+                style: TextStyle(
+                  fontFamily: textFieldFont,
+                  fontSize: textFieldText,
+                  color: textFieldColor,
+                ),
+                textInputAction: TextInputAction.next,
+                textAlign: TextAlign.start,
+                keyboardType: TextInputType.emailAddress,
               ),
             ),
+            // Form(
+            //   autovalidateMode: AutovalidateMode.disabled,
+            //   key: restaurantsNameFormKey,
+            //   child: DropdownButtonFormField(
+            //     icon: Icon(
+            //       Icons.keyboard_arrow_down_sharp,
+            //       color: gGreyColor.withOpacity(0.5),
+            //       size: 3.h,
+            //     ),
+            //     style: TextStyle(
+            //       fontFamily: textFieldFont,
+            //       fontSize: textFieldText,
+            //       color: textFieldColor,
+            //     ),
+            //     onChanged: (v) {
+            //       restaurantNameController.text = v.toString();
+            //     },
+            //     decoration: InputDecoration(
+            //       hintStyle: TextStyle(
+            //         fontFamily: textFieldHintFont,
+            //         color: textFieldHintColor.withOpacity(0.5),
+            //         fontSize: textFieldHintText,
+            //       ),
+            //       enabledBorder: UnderlineInputBorder(
+            //         borderSide: BorderSide(
+            //           color: textFieldUnderLineColor.withOpacity(0.3),
+            //         ),
+            //       ),
+            //       focusedBorder: const UnderlineInputBorder(
+            //         borderSide: BorderSide(
+            //           color: textFieldUnderLineColor,
+            //         ),
+            //       ),
+            //       hintText: "Enter your restaurant's name",
+            //     ),
+            //     items: [
+            //       ...restaurantNameList.map((e) {
+            //         return DropdownMenuItem(
+            //           value: e,
+            //           child: Text(
+            //             e,
+            //           ),
+            //         );
+            //       }).toList(),
+            //     ],
+            //   ),
+            // ),
             buildTextFieldHeading("Location"),
             Form(
               autovalidateMode: AutovalidateMode.disabled,
@@ -436,7 +471,7 @@ class _DonorRegistrationState extends State<DonorRegistration> {
                 controller: locationController,
                 cursorColor: gGreyColor,
                 decoration: InputDecoration(
-                  hintText: "Pick the restaurant's location",
+                  hintText: "Pick the location",
                   hintStyle: TextStyle(
                     fontFamily: textFieldHintFont,
                     color: textFieldHintColor.withOpacity(0.5),
@@ -575,6 +610,50 @@ class _DonorRegistrationState extends State<DonorRegistration> {
     return RegExp(
             r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
         .hasMatch(email);
+  }
+
+  filterPopUp() {
+    return  PopupMenuButton(
+      onSelected: (e){
+        setState(() {
+          restaurantNameController.text = e;
+        });
+      },
+      offset: const Offset(0, 20),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+      color: gWhiteColor,
+
+      itemBuilder: (context) => [
+        PopupMenuItem(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children:[
+              ...restaurantNameList.map((e) {
+                return DropdownMenuItem(
+                  value: e,
+                  child: GestureDetector(
+                    onTap: (){
+                      setState(() {
+                        restaurantNameController.text = e;
+                      });
+                    },
+                    child: Text(
+                      e,
+                    ),
+                  ),
+                );
+              }).toList(),
+            ],
+          ),
+        ),
+      ],
+      child: Icon(
+        Icons.expand_more,
+        color: gBlackColor,
+        size: 2.5.h,
+      ),
+
+    );
   }
 
   void donorRegistration(

@@ -541,7 +541,7 @@ class _VolunteerRegistrationState extends State<VolunteerRegistration> {
                 controller: locationController,
                 cursorColor: gGreyColor,
                 decoration: InputDecoration(
-                  hintText: "Pick the restaurant's location",
+                  hintText: "Pick the location",
                   hintStyle: TextStyle(
                     fontFamily: textFieldHintFont,
                     color: textFieldHintColor.withOpacity(0.5),
@@ -839,7 +839,7 @@ class _VolunteerRegistrationState extends State<VolunteerRegistration> {
         .hasMatch(email);
   }
 
-  buildTextFieldHeading(String title, {bool isRequired = false}) {
+    buildTextFieldHeading(String title, {bool isRequired = false}) {
     return Padding(
       padding: EdgeInsets.only(top: 2.h),
       child: Row(

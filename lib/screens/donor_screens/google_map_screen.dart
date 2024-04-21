@@ -41,8 +41,6 @@ class _GoogleMapScreenState extends State<GoogleMapScreen> {
       });
     });
 
-    print("current location : $currentLocation");
-
     GoogleMapController googleMapController = await _controller.future;
 
     location.onLocationChanged.listen((event) {
@@ -56,6 +54,8 @@ class _GoogleMapScreenState extends State<GoogleMapScreen> {
           ),
         ),
       );
+
+      print("current location : $currentLocation");
 
       setState(() {});
     });

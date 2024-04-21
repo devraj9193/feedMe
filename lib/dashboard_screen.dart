@@ -1,4 +1,5 @@
 import 'package:feed_me/screens/community_screens/community_screen.dart';
+import 'package:feed_me/screens/donor_screens/google_map_screen.dart';
 import 'package:feed_me/screens/home_screens/home_screen.dart';
 import 'package:feed_me/screens/location_screens/location_screen.dart';
 import 'package:feed_me/screens/new_home_screen/new_home_screen.dart';
@@ -8,6 +9,7 @@ import 'package:feed_me/screens/profile_screens/settings_screen.dart';
 import 'package:feed_me/utils/app_config.dart';
 import 'package:feed_me/utils/constants.dart';
 import 'package:feed_me/utils/widgets/exit_widget.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_sizer/flutter_sizer.dart';
 
@@ -54,13 +56,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
       ),
       label: 'Location',
     ),
-    BottomNavigationBarItem(
-      icon: Icon(
-        Icons.notifications_active_outlined,
-        size: 3.h,
-      ),
-      label: 'Notifications',
-    ),
+    // BottomNavigationBarItem(
+    //   icon: Icon(
+    //     Icons.notifications_active_outlined,
+    //     size: 3.h,
+    //   ),
+    //   label: 'Notifications',
+    // ),
     BottomNavigationBarItem(
       icon: Icon(
         Icons.manage_accounts_outlined,
@@ -82,16 +84,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
         }
       case 2:
         {
-          return const CommunityScreen();
+          return kDebugMode ? const GoogleMapScreen() : const CommunityScreen();
         }
+      // case 3:
+      //   {
+      //     return const NotificationScreen();
+      //   }
       case 3:
         {
-          return const NotificationScreen();
-        }
-      case 4:
-        {
           return const SettingsScreen();
-            //return const ProfileScreen();
+          //return const ProfileScreen();
         }
     }
   }

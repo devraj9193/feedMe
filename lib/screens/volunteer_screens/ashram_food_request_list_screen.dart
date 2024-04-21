@@ -73,7 +73,7 @@ class _AshramFoodRequestListScreenState
                 () {
                   Navigator.of(context).push(
                     MaterialPageRoute(
-                      builder: (context) => const DashboardScreen(index: 0,),
+                      builder: (context) => const DashboardScreen(index: 1,),
                     ),
                   );
                 },

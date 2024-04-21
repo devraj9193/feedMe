@@ -6,6 +6,7 @@ import 'package:feed_me/utils/app_config.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_sizer/flutter_sizer.dart';
+import 'package:location/location.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../main.dart';
@@ -103,6 +104,7 @@ class _LoginScreenState extends State<LoginScreen> {
     passwordController.addListener(() {
       setState(() {});
     });
+    getCurrentLocation();
 
     // phoneController.addListener(() {
     //   setState(() {});
@@ -115,6 +117,23 @@ class _LoginScreenState extends State<LoginScreen> {
     //     mobileFormKey.currentState!.validate();
     //   }
     // });
+  }
+
+
+  getCurrentLocation() async {
+    Location location = Location();
+
+    location.onLocationChanged.listen((event) {
+      LocationData? currentLocation = event;
+
+      _pref.setDouble(AppConfig.userLongitude, currentLocation.longitude ?? 0.0);
+      _pref.setDouble(AppConfig.userLatitude, currentLocation.latitude ?? 0.0);
+
+      print("userLongitude : ${_pref.getDouble(AppConfig.userLongitude)}");
+      print("userLatitude : ${_pref.getDouble(AppConfig.userLatitude)}");
+
+      setState(() {});
+    });
   }
 
   @override
