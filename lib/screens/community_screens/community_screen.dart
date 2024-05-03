@@ -1,55 +1,82 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_sizer/flutter_sizer.dart';
 import 'package:image_network/image_network.dart';
+import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../../dashboard_screen.dart';
 import '../../main.dart';
 import '../../utils/app_config.dart';
 import '../../utils/constants.dart';
 import '../../utils/widgets/no_data_found.dart';
 import '../../utils/widgets/widgets.dart';
 import '../../utils/widgets/will_pop_widget.dart';
-import 'navigation_pickup.dart';
+import '../donor_screens/donor_food_screen.dart';
+import '../volunteer_screens/ashram_food_request_list_screen.dart';
+import 'ngo_screen.dart';
 
 class CommunityScreen extends StatefulWidget {
-  const CommunityScreen({Key? key}) : super(key: key);
+  const CommunityScreen({Key? key, }) : super(key: key);
 
   @override
   State<CommunityScreen> createState() => _CommunityScreenState();
 }
 
-class _CommunityScreenState extends State<CommunityScreen> {
-  List<Map<String, dynamic>> acceptedData = [];
+class _CommunityScreenState extends State<CommunityScreen>
+    with SingleTickerProviderStateMixin {
+  TabController? tabController;
+  final searchController = TextEditingController();
 
-  final _prefs = AppConfig().preferences;
-
-  var loading = true;
+  final SharedPreferences _pref = AppConfig().preferences!;
+  String? userName, userType, userRestaurant, userAddress;
 
   @override
   void initState() {
     super.initState();
-    getAcceptedList();
+    getDashboardData();
+    tabController = TabController(
+      initialIndex: 0,
+      length: 2,
+      vsync: this,
+    );
   }
 
-  getAcceptedList() async {
+  @override
+  void dispose() async {
+    super.dispose();
+    tabController?.dispose();
+  }
+
+  var loading = true;
+  List<Map<String, dynamic>> getDashboard = [];
+
+  getDashboardData() async {
     setState(() {
       loading = true;
     });
 
-    // getProfileDetails =
-    //     UserProfileService(repository: repository).getUserProfileService();
-
     try {
-      print("userId : ${_prefs?.getString(AppConfig.userId)}");
+      final data = await supabase.from('ashrams').select('*');
 
-      final response = await supabase
-          .from('ashram_requests')
+      final datas = await supabase
+          .from('ashrams')
           .select('*')
-          .eq('volunteer_id', "${_prefs?.getString(AppConfig.userId)}");
+          .eq('ngo_id', _pref.getString(AppConfig.userId) as Object);
 
-      acceptedData = response;
+      print("ngo : $datas");
 
-      print("accepted orders : $acceptedData");
+      print("getDashboardData : $data");
+
+      getDashboard = data;
+
+      setState(() {
+        userName = _pref.getString(AppConfig.userName) ?? '';
+        userType = _pref.getString(AppConfig.userType) ?? '';
+        userRestaurant = _pref.getString(AppConfig.userRestaurant) ?? '';
+        userAddress = _pref.getString(AppConfig.userAddress) ?? '';
+      });
+
     } on PostgrestException catch (error) {
       AppConfig().showSnackbar(context, error.message, isError: true);
     } catch (error) {
@@ -66,62 +93,47 @@ class _CommunityScreenState extends State<CommunityScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return WillPopWidget(
+
+    print("User Type : $userType");
+
+    var subTitle = userType == "Donor" ? userRestaurant : userAddress;
+
+    return userType == "ngo" ? const NgoScreen() : WillPopWidget(
       child: Scaffold(
         body: SafeArea(
-          child: Padding(
-            padding: EdgeInsets.only(top: 1.h, left: 3.w),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                buildAppBar(
-                  () {},
-                  isBackEnable: false,
-                  showLogo: false,
-                  showChild: true,
-                  child: Text(
-                    "Accepted Orders",
-                    style: TextStyle(
-                      fontFamily: kFontBold,
-                      fontSize: 15.dp,
-                      color: gBlackColor,
-                    ),
-                  ),
-                ),
-                SizedBox(height: 2.h),
-                Expanded(
-                  child: SingleChildScrollView(
-                    child: loading
-                        ? Padding(
-                            padding: EdgeInsets.symmetric(vertical: 35.h),
-                            child:
-                                buildThreeBounceIndicator(color: gBlackColor),
-                          )
-                        : acceptedData.isEmpty
-                            ? const NoDataFound()
-                            : buildAcceptedDetails(),
-                  ),
-                ),
-              ],
-            ),
-          ),
+          child: loading
+              ? Padding(
+                  padding: EdgeInsets.symmetric(vertical: 35.h),
+                  child: buildThreeBounceIndicator(color: gBlackColor),
+                )
+              : getDashboard.isEmpty
+                  ? const NoDataFound()
+                  : buildList(),
         ),
       ),
     );
   }
 
-  buildAcceptedDetails() {
+  buildList() {
     return ListView.builder(
-      itemCount: acceptedData.length,
+      itemCount: getDashboard.length,
       shrinkWrap: true,
       scrollDirection: Axis.vertical,
       physics: const ScrollPhysics(),
       itemBuilder: (context, index) {
-        dynamic file = acceptedData[index];
+        dynamic file = getDashboard[index];
         return GestureDetector(
           onTap: () {
-            buildOnClick(file);
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(
+                builder: (context) => userType == "Donor"
+                    ? DonorFoodScreen(
+                        donorData: file,
+                      )
+                    : userType == "Volunteer" ? AshramFoodRequestListScreen(volunteerData: file,) : const SizedBox(),
+                // VolunteerDeliveryDetails(volunteerData: file,),
+              ),
+            );
           },
           child: Container(
             height: 14.h,
@@ -146,7 +158,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: ImageNetwork(
-                      image: '',
+                      image: file['image_url'] ?? "",
                       height: 14.h,
                       width: 32.w,
                       // duration: 1500,
@@ -162,134 +174,114 @@ class _CommunityScreenState extends State<CommunityScreen> {
                         color: loginButtonSelectedColor,
                       ),
                       onTap: () {
-                        buildOnClick(file);
+                        Navigator.of(context).pushReplacement(
+                          MaterialPageRoute(
+                            builder: (context) => userType == "Donor"
+                                ? DonorFoodScreen(
+                              donorData: file,
+                            )
+                                : userType == "Volunteer" ? AshramFoodRequestListScreen(volunteerData: file,) : const SizedBox(),
+                            // VolunteerDeliveryDetails(volunteerData: file,),
+                          ),
+                        );
                       },
                     ),
                   ),
                   SizedBox(width: 2.w),
                   Expanded(
                     child: Padding(
-                      padding: EdgeInsets.only(top: 1.h, right: 3.w),
+                      padding: EdgeInsets.symmetric(vertical: 1.h),
                       child: SingleChildScrollView(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  file['food_items'],
-                                  style: TextStyle(
-                                    fontSize: listHeadingSize,
-                                    fontFamily: listHeadingFont,
-                                    color: gBlackColor,
-                                  ),
-                                ),
-                                Text(
-                                  "${file['food_quantity']}",
-                                  style: TextStyle(
-                                    fontSize: listSubHeadingSize,
-                                    height: 1.3,
-                                    fontFamily: listSubHeadingFont,
-                                    color: gBlackColor,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            SizedBox(height: 0.5.h),
-                            RichText(
-                              textAlign: TextAlign.start,
-                              text: TextSpan(
-                                children: <TextSpan>[
-                                  TextSpan(
-                                    text: "Status : ",
-                                    style: TextStyle(
-                                      fontSize: 11.dp,
-                                      height: 1.5,
-                                      fontFamily: kFontBook,
-                                      color: gBlackColor,
-                                    ),
-                                  ),
-                                  TextSpan(
-                                    text: file['status'],
-                                    style: TextStyle(
-                                      fontSize: 11.dp,
-                                      height: 1.5,
-                                      fontFamily: kFontBold,
-                                      color: gBlackColor,
-                                    ),
-                                  ),
-                                ],
+                            Text(
+                              file['ashram_name'],
+                              style: TextStyle(
+                                fontSize: listHeadingSize,
+                                fontFamily: listHeadingFont,
+                                color: gBlackColor,
                               ),
                             ),
-                            RichText(
-                              textAlign: TextAlign.start,
-                              text: TextSpan(
-                                children: <TextSpan>[
-                                  TextSpan(
-                                    text: "Pickup Time : ",
-                                    style: TextStyle(
-                                      fontSize: 11.dp,
-                                      height: 1.5,
-                                      fontFamily: kFontBook,
-                                      color: gBlackColor,
-                                    ),
-                                  ),
-                                  TextSpan(
-                                    text: file['pickup_time'],
-                                    style: TextStyle(
-                                      fontSize: 11.dp,
-                                      height: 1.5,
-                                      fontFamily: kFontBold,
-                                      color: gBlackColor,
-                                    ),
-                                  ),
-                                ],
+                            // Text(
+                            //   "Meal for ${file['meal_request']} people",
+                            //   style: TextStyle(
+                            //     fontSize: listSubHeadingSize,
+                            //     height: 1.3,
+                            //     fontFamily: listSubHeadingFont,
+                            //     color: gBlackColor,
+                            //   ),
+                            // ),
+                             SizedBox(height: 1.5.h),
+                            Text(
+                              file['address'],
+                              style: TextStyle(
+                                fontSize: listOtherSize,
+                                height: 1.7,
+                                fontFamily: listOtherFont,
+                                color: gBlackColor,
                               ),
                             ),
                             SizedBox(height: 1.h),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Row(
-                                  children: [
-                                    Icon(
-                                      Icons.location_on_outlined,
-                                      size: 1.5.h,
-                                      color: gBlackColor,
-                                    ),
-                                    SizedBox(width: 1.w),
-                                    Text(
-                                      file['cooking_date'],
-                                      style: TextStyle(
-                                        fontSize: listOtherSize,
-                                        fontFamily: listOtherFont,
-                                        color: gBlackColor,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                Row(
-                                  children: [
-                                    Icon(
-                                      Icons.timer_sharp,
-                                      size: 1.5.h,
-                                      color: gBlackColor,
-                                    ),
-                                    SizedBox(width: 1.w),
-                                    Text(
-                                      file['cooking_time'],
-                                      style: TextStyle(
-                                        fontSize: listOtherSize,
-                                        fontFamily: listOtherFont,
-                                        color: gBlackColor,
-                                      ),
-                                    ),
-                                    SizedBox(width: 3.w),
-                                  ],
-                                ),
-                              ],
-                            ),
+                            // Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            //   children: [
+                            //     Row(
+                            //       children: [
+                            //         Icon(
+                            //           Icons.location_on_outlined,
+                            //           size: 1.5.h,
+                            //           color: gBlackColor,
+                            //         ),SizedBox(width: 1.w),
+                            //         Text(
+                            //           "4 Kms",
+                            //           style: TextStyle(
+                            //             fontSize: listOtherSize,
+                            //             fontFamily: listOtherFont,
+                            //             color: gBlackColor,
+                            //           ),
+                            //         ),
+                            //       ],
+                            //     ),
+                            //     userType == "Donor"
+                            //         ?  Row(
+                            //       children: [
+                            //         Icon(
+                            //           Icons.timer_sharp,
+                            //           size: 1.5.h,
+                            //           color: gBlackColor,
+                            //         ),
+                            //         SizedBox(width: 1.w),
+                            //         Text(
+                            //           "Posted at ${DateFormat.jm().format(DateTime.parse(file['created_at']))}",
+                            //           style: TextStyle(
+                            //             fontSize: listOtherSize,
+                            //             fontFamily: listOtherFont,
+                            //             color: gBlackColor,
+                            //           ),
+                            //         ),
+                            //         SizedBox(width: 3.w),
+                            //       ],
+                            //     ) : Row(
+                            //       children: [
+                            //         Icon(
+                            //           Icons.timer_sharp,
+                            //           size: 1.5.h,
+                            //           color: gBlackColor,
+                            //         ),SizedBox(width: 1.w),
+                            //         Text(
+                            //           "Cooked 1hr ago",
+                            //           style: TextStyle(
+                            //             fontSize: listOtherSize,
+                            //             fontFamily: listOtherFont,
+                            //             color: gBlackColor,
+                            //           ),
+                            //         ),
+                            //         SizedBox(width: 3.w),
+                            //       ],
+                            //     ),
+                            //
+                            //   ],
+                            // ),
                           ],
                         ),
                       ),
@@ -303,155 +295,4 @@ class _CommunityScreenState extends State<CommunityScreen> {
       },
     );
   }
-
-  void buildOnClick(Map<String, dynamic> file) {
-    if (file['status'] == "accepted") {
-      Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (context) => NavigationPickUp(
-            file: file,
-          ),
-        ),
-      );
-    } else if (file['status'] == "picked_up") {
-      Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (context) => NavigationPickUp(
-            file: file,
-            isDelivery: true,
-          ),
-        ),
-      );
-    } else if (file['status'] == "delivered") {
-      deliveredWidget(context);
-    } else {}
-  }
-
-  bool showDeliveredProgress = false;
-
-  /// we r showing in stateful builder so this parameter will be used
-  /// when we get setstate we will assign to this parameter based on that logout progress is used
-  var deliveredProgressState;
-
-  void deliveredWidget(BuildContext context) {
-    showDialog(
-        barrierDismissible: false,
-        barrierColor: gWhiteColor.withOpacity(0.8),
-        context: context,
-        builder: (context) {
-          return StatefulBuilder(builder: (_, setstate) {
-            deliveredProgressState = setstate;
-            return Center(
-              child: Container(
-                margin: EdgeInsets.symmetric(horizontal: 10.w),
-                padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 3.h),
-                decoration: BoxDecoration(
-                  color: gWhiteColor,
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: lightTextColor, width: 1),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    Text(
-                      "Delivery completed. Thank you for your help and contribution for this community",
-                      style: TextStyle(
-                          fontSize: listOtherSize,
-                          fontFamily: kFontBook,
-                          height: 1.4,
-                          color: gBlackColor),
-                      textAlign: TextAlign.center,
-                    ),
-                    SizedBox(height: 1.h),
-                    Text(
-                      '50 Points Rewarded',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: gTextColor,
-                        fontSize: bottomSheetSubHeadingXFontSize,
-                        fontFamily: bottomSheetSubHeadingMediumFont,
-                      ),
-                    ),
-                    Text(
-                      "has been added to your account",
-                      style: TextStyle(
-                          fontSize: listOtherSize,
-                          fontFamily: kFontBook,
-                          height: 1.4,
-                          color: gBlackColor),
-                      textAlign: TextAlign.center,
-                    ),
-                    SizedBox(height: 1.h),
-                    (showDeliveredProgress)
-                        ? Center(child: buildCircularIndicator())
-                        : Padding(
-                      padding: EdgeInsets.symmetric(
-                          horizontal: 2.w, vertical: 1.h),
-                      child: ElevatedButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                          // Navigator.of(context).push(
-                          //   MaterialPageRoute(
-                          //     builder: (context) =>
-                          //     // SitBackScreen(),
-                          //     const FeedMeScreen(),
-                          //   ),
-                          // );
-                        },
-                        style: ElevatedButton.styleFrom(
-                          foregroundColor:
-                          loginButtonSelectedColor, //change background color of button
-                          backgroundColor:
-                          loginButtonColor, //change text color of button
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          elevation: 2.0,
-                        ),
-                        child: Center(
-                          child: Text(
-                            "YAY!",
-                            style: TextStyle(
-                              fontFamily: buttonFont,
-                              fontSize: buttonFontSize,
-                              color: buttonColor,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            );
-          });
-        });
-  }
 }
-
-class Data {
-  final String name;
-  final String address;
-  final int isFrom;
-
-  const Data({
-    required this.name,
-    required this.address,
-    required this.isFrom,
-  });
-}
-
-const List<Data> dummyData = [
-  Data(
-    name: "The Big Brunch",
-    address: "Drop of Arun school",
-    isFrom: 1,
-  ),
-  Data(
-    name: "Blind School",
-    address: "Avenue Colony, Flat No.404",
-    isFrom: 0,
-  ),
-];

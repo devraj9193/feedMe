@@ -4,7 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_sizer/flutter_sizer.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-
+import 'package:open_street_map_search_and_pick/open_street_map_search_and_pick.dart';
 import '../../../main.dart';
 import '../../../utils/app_config.dart';
 import '../../../utils/constants.dart';
@@ -488,7 +488,9 @@ class _DonorRegistrationState extends State<DonorRegistration> {
                     ),
                   ),
                   suffixIcon: GestureDetector(
-                    onTap: () {},
+                    onTap: () {
+                      pickLocation(context);
+                    },
                     child: Icon(
                       Icons.my_location_outlined,
                       color: textFieldHintColor.withOpacity(0.5),
@@ -656,6 +658,39 @@ class _DonorRegistrationState extends State<DonorRegistration> {
     );
   }
 
+  void pickLocation(BuildContext context) {
+    showDialog(
+      barrierDismissible: false,
+      context: context,
+      builder: (context) => Container(
+        height: double.maxFinite,
+        width: double.maxFinite,
+        margin: EdgeInsets.symmetric(horizontal: 5.w, vertical: 7.h),
+        // padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 2.h),
+        decoration: BoxDecoration(
+          color: gWhiteColor,
+          borderRadius: BorderRadius.circular(15),
+        ),
+        child: Scaffold(
+          body: OpenStreetMapSearchAndPick(
+               center: const LatLong(23, 89),
+              buttonText: 'Pick address',
+              buttonWidth: 30.w,
+              buttonHeight: 5.h,
+              onPicked: (pickedData) {
+                setState(() {
+                  locationController.text = pickedData.address.toString();
+                  Navigator.pop(context);
+                });
+                print(pickedData.latLong.latitude);
+                print(pickedData.latLong.longitude);
+                print(pickedData.address);
+              }),
+        )
+      ),
+    );
+  }
+
   void donorRegistration(
     String fName,
     String lName,
@@ -678,7 +713,7 @@ class _DonorRegistrationState extends State<DonorRegistration> {
         'res_name': resName,
         'id_proof_number': idProofNumber,
         'user_type': userType,
-        // 'location':locationController.text.trim(),
+         'location':locationController.text.trim(),
       });
 
       print("response : ${res.runtimeType}");

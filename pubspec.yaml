@@ -56,17 +56,20 @@ dependencies:
   intl: any
   timelines: ^0.1.0
 
-#  map
+  # map
   location: ^5.0.3
   flutter_polyline_points: any
   google_maps_flutter: any
   geolocator: any
   google_maps_place_picker_mb: any
 
-# database
+  #address pick
+  open_street_map_search_and_pick: any
+
+  # database
   supabase_flutter: ^2.0.0
 
-# file image upload package
+  # file image upload package
   image_picker: any
   file_picker: ^5.0.0
   image_cropper: any

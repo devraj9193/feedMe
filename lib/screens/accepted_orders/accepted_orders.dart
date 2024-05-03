@@ -1,125 +1,55 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_sizer/flutter_sizer.dart';
 import 'package:image_network/image_network.dart';
-import 'package:intl/intl.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-import '../../dashboard_screen.dart';
 import '../../main.dart';
 import '../../utils/app_config.dart';
 import '../../utils/constants.dart';
 import '../../utils/widgets/no_data_found.dart';
 import '../../utils/widgets/widgets.dart';
 import '../../utils/widgets/will_pop_widget.dart';
-import '../community_screens/navigation_pickup.dart';
-import 'feedback_screen.dart';
+import '../accepted_orders/navigation_pickup.dart';
 
-class NgoScreen extends StatefulWidget {
-  const NgoScreen({super.key});
+class AcceptedOrdersScreen extends StatefulWidget {
+  const AcceptedOrdersScreen({Key? key}) : super(key: key);
 
   @override
-  State<NgoScreen> createState() => _NgoScreenState();
+  State<AcceptedOrdersScreen> createState() => _AcceptedOrdersScreenState();
 }
 
-class _NgoScreenState extends State<NgoScreen>
-    with SingleTickerProviderStateMixin {
-  TabController? tabController;
-  final searchController = TextEditingController();
+class _AcceptedOrdersScreenState extends State<AcceptedOrdersScreen> {
+  List<Map<String, dynamic>> acceptedData = [];
 
-  final SharedPreferences _pref = AppConfig().preferences!;
-  String? userName, userType, userRestaurant, userAddress;
+  final _prefs = AppConfig().preferences;
+
+  var loading = true;
 
   @override
   void initState() {
     super.initState();
-    getAshramId();
-    tabController = TabController(
-      initialIndex: 0,
-      length: 2,
-      vsync: this,
-    );
+    getAcceptedList();
   }
 
-  @override
-  void dispose() async {
-    super.dispose();
-    tabController?.dispose();
-  }
-
-  var loading = true;
-  List<Map<String, dynamic>> getDashboard = [];
-  List<Map<String, dynamic>> getDashboardNgoData = [];
-
-  getAshramId() async {
+  getAcceptedList() async {
     setState(() {
       loading = true;
     });
 
-    try {
-      final data = await supabase
-          .from('ashrams')
-          .select('*')
-          .eq('ngo_id', _pref.getString(AppConfig.userId) as Object);
-
-      print("getDashboardNGOData : $data");
-
-      getDashboard = data;
-
-      if (getDashboard.isNotEmpty) {
-        setState(() {
-          userName = getDashboard[0]['ashram_name'] ?? '';
-          userType = _pref.getString(AppConfig.userType) ?? '';
-          userRestaurant = _pref.getString(AppConfig.userRestaurant) ?? '';
-          userAddress = _pref.getString(AppConfig.userAddress) ?? '';
-        });
-        getNgoData(getDashboard[0]['id']);
-      }
-    } on PostgrestException catch (error) {
-      AppConfig().showSnackbar(context, error.message, isError: true);
-    } catch (error) {
-      AppConfig()
-          .showSnackbar(context, 'Unexpected error occurred', isError: true);
-    } finally {
-      if (mounted) {
-        setState(() {
-          loading = false;
-        });
-      }
-    }
-  }
-
-  List<Map<String, dynamic>> getPickedUpData = [];
-  List<Map<String, dynamic>> getDeliveredData = [];
-
-  getNgoData(int ashramId) async {
-    setState(() {
-      loading = true;
-    });
+    // getProfileDetails =
+    //     UserProfileService(repository: repository).getUserProfileService();
 
     try {
-      final data = await supabase
+      print("userId : ${_prefs?.getString(AppConfig.userId)}");
+
+      final response = await supabase
           .from('ashram_requests')
           .select('*')
-          .eq('ashram_id', ashramId);
+          .eq('volunteer_id', "${_prefs?.getString(AppConfig.userId)}");
 
-      print("getDashboardNGOData : $data");
+      acceptedData = response;
 
-      getDashboardNgoData = data;
-
-      for (var element in getDashboardNgoData) {
-        print("element :$element");
-
-        if (element['status'] == "delivered") {
-          getDeliveredData.add(element);
-
-          print("getDeliveredData : $getDeliveredData");
-        } else if (element['status'] == "picked_up") {
-          getPickedUpData.add(element);
-
-          print("getPickedUpData : $getPickedUpData");
-        }
-      }
+      print("accepted orders : $acceptedData");
     } on PostgrestException catch (error) {
       AppConfig().showSnackbar(context, error.message, isError: true);
     } catch (error) {
@@ -144,173 +74,22 @@ class _NgoScreenState extends State<NgoScreen>
                   padding: EdgeInsets.symmetric(vertical: 35.h),
                   child: buildThreeBounceIndicator(color: gBlackColor),
                 )
-              : getDashboard.isEmpty
+              : acceptedData.isEmpty
                   ? const NoDataFound()
-                  : Column(
-                      children: [
-                        SizedBox(height: 1.h),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            buildAppBar(
-                              () {},
-                              isBackEnable: false,
-                              showLogo: false,
-                              showChild: true,
-                              child: Row(
-                                children: [
-                                  Icon(
-                                    Icons.location_on_outlined,
-                                    color: gBlackColor,
-                                    size: 3.5.h,
-                                  ),
-                                  SizedBox(width: 1.w),
-                                  Text(
-                                    "Welcome ${toBeginningOfSentenceCase(userName)}",
-                                    style: TextStyle(
-                                      fontFamily: kFontBold,
-                                      fontSize: backButton,
-                                      color: gBlackColor,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Padding(
-                              padding: EdgeInsets.only(right: 3.w),
-                              child: Container(
-                                height: 35,
-                                width: 35,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  border: Border.all(
-                                    color: gGreyColor.withOpacity(0.5),
-                                  ),
-                                ),
-                                child: ImageNetwork(
-                                  image: '',
-                                  height: 35,
-                                  width: 35,
-                                  // duration: 1500,
-                                  curve: Curves.easeIn,
-                                  onPointer: true,
-                                  debugPrint: false,
-                                  fullScreen: false,
-                                  fitAndroidIos: BoxFit.cover,
-                                  fitWeb: BoxFitWeb.contain,
-                                  borderRadius: BorderRadius.circular(70),
-                                  onError: Icon(
-                                    Icons.person,
-                                    color: gGreyColor.withOpacity(0.5),
-                                  ),
-                                  onTap: () {
-                                    Navigator.of(context).pushReplacement(
-                                      MaterialPageRoute(
-                                        builder: (context) =>
-                                            const DashboardScreen(
-                                          index: 4,
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        // Container(
-                        //   height: 6.h,
-                        //   padding: EdgeInsets.symmetric(horizontal: 1.w),
-                        //   margin: EdgeInsets.symmetric(
-                        //       horizontal: 3.w, vertical: 2.h),
-                        //   decoration: BoxDecoration(
-                        //     borderRadius: BorderRadius.circular(15),
-                        //     color: loginButtonSelectedColor,
-                        //   ),
-                        //   child: TextFormField(
-                        //     cursorColor: gGreyColor,
-                        //     controller: searchController,
-                        //     textAlign: TextAlign.start,
-                        //     decoration: InputDecoration(
-                        //       prefixIcon: Icon(
-                        //         Icons.search,
-                        //         color: textFieldHintColor.withOpacity(0.5),
-                        //         size: 2.5.h,
-                        //       ),
-                        //       suffixIcon: GestureDetector(
-                        //         onTap: () {
-                        //           setState(() {
-                        //             searchController.clear();
-                        //           });
-                        //         },
-                        //         child: Icon(
-                        //           Icons.cancel_outlined,
-                        //           color: textFieldHintColor.withOpacity(0.5),
-                        //           size: 2.5.h,
-                        //         ),
-                        //       ),
-                        //       hintText: "Search for NGO or Hunger spots",
-                        //       hintStyle: TextStyle(
-                        //         fontFamily: textFieldHintFont,
-                        //         color: textFieldHintColor.withOpacity(0.5),
-                        //         fontSize: textFieldHintText,
-                        //       ),
-                        //       border: InputBorder.none,
-                        //     ),
-                        //     style: TextStyle(
-                        //         fontFamily: textFieldFont,
-                        //         fontSize: textFieldText,
-                        //         color: textFieldColor),
-                        //     onChanged: (value) {},
-                        //   ),
-                        // ),
-                        TabBar(
-                          controller: tabController,
-                          labelColor: gBlackColor,
-                          unselectedLabelColor: gGreyColor.withOpacity(0.5),
-                          indicatorColor: gBlackColor,
-                          labelStyle: TextStyle(
-                            fontFamily: kFontBold,
-                            color: gPrimaryColor,
-                            fontSize: tapSelectedSize,
-                          ),
-                          unselectedLabelStyle: TextStyle(
-                            fontFamily: tapFont,
-                            color: gHintTextColor,
-                            fontSize: tapUnSelectedSize,
-                          ),
-                          labelPadding: EdgeInsets.only(
-                              right: 0.w, left: 0.w, top: 1.h, bottom: 1.h),
-                          tabs: const [
-                            Text('Picked Up'),
-                            Text('Delivered'),
-                          ],
-                        ),
-                        Expanded(
-                          child: TabBarView(
-                            controller: tabController,
-                            // physics: const NeverScrollableScrollPhysics(),
-                            children: [
-                              buildList(getPickedUpData),
-                              buildList(getDeliveredData),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
+                  : buildAcceptedDetails(),
         ),
       ),
     );
   }
 
-  buildList(List<Map<String, dynamic>> lst) {
+  buildAcceptedDetails() {
     return ListView.builder(
-      itemCount: lst.length,
+      itemCount: acceptedData.length,
       shrinkWrap: true,
       scrollDirection: Axis.vertical,
       physics: const ScrollPhysics(),
       itemBuilder: (context, index) {
-        dynamic file = lst[index];
+        dynamic file = acceptedData[index];
         return GestureDetector(
           onTap: () {
             buildOnClick(file);
@@ -515,15 +294,7 @@ class _NgoScreenState extends State<NgoScreen>
         ),
       );
     } else if (file['status'] == "delivered") {
-      Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (context) =>  FeedbackScreen(
-            file: file,
-          ),
-        ),
-      );
-
-      // deliveredWidget(context);
+      deliveredWidget(context);
     } else {}
   }
 
@@ -630,3 +401,28 @@ class _NgoScreenState extends State<NgoScreen>
         });
   }
 }
+
+class Data {
+  final String name;
+  final String address;
+  final int isFrom;
+
+  const Data({
+    required this.name,
+    required this.address,
+    required this.isFrom,
+  });
+}
+
+const List<Data> dummyData = [
+  Data(
+    name: "The Big Brunch",
+    address: "Drop of Arun school",
+    isFrom: 1,
+  ),
+  Data(
+    name: "Blind School",
+    address: "Avenue Colony, Flat No.404",
+    isFrom: 0,
+  ),
+];

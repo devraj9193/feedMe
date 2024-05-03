@@ -152,7 +152,7 @@ class _DonorFoodScreenState extends State<DonorFoodScreen> {
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: ImageNetwork(
-                      image: '',
+                      image: widget.donorData['image_url'],
                       height: 14.h,
                       width: 32.w,
                       // duration: 1500,
@@ -189,16 +189,16 @@ class _DonorFoodScreenState extends State<DonorFoodScreen> {
                                 color: gBlackColor,
                               ),
                             ),
-                            Text(
-                              "Meal for ${widget.donorData['meal_request']} people",
-                              style: TextStyle(
-                                fontSize: listSubHeadingSize,
-                                height: 1.3,
-                                fontFamily: listSubHeadingFont,
-                                color: gBlackColor,
-                              ),
-                            ),
-                            SizedBox(height: 0.5.h),
+                            // Text(
+                            //   "Meal for ${widget.donorData['meal_request']} people",
+                            //   style: TextStyle(
+                            //     fontSize: listSubHeadingSize,
+                            //     height: 1.3,
+                            //     fontFamily: listSubHeadingFont,
+                            //     color: gBlackColor,
+                            //   ),
+                            // ),
+                            SizedBox(height: 1.5.h),
                             Text(
                               widget.donorData['address'],
                               style: TextStyle(
@@ -209,46 +209,46 @@ class _DonorFoodScreenState extends State<DonorFoodScreen> {
                               ),
                             ),
                             SizedBox(height: 1.h),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Row(
-                                  children: [
-                                    Icon(
-                                      Icons.location_on_outlined,
-                                      size: 2.h,
-                                      color: gBlackColor,
-                                    ),
-                                    Text(
-                                      "4 Kms",
-                                      style: TextStyle(
-                                        fontSize: listOtherSize,
-                                        fontFamily: listOtherFont,
-                                        color: gBlackColor,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                Row(
-                                  children: [
-                                    Icon(
-                                      Icons.timer_sharp,
-                                      size: 2.h,
-                                      color: gBlackColor,
-                                    ),
-                                    Text(
-                                      "Posted at ${DateFormat.jm().format(DateTime.parse(widget.donorData['created_at']))}",
-                                      style: TextStyle(
-                                        fontSize: listOtherSize,
-                                        fontFamily: listOtherFont,
-                                        color: gBlackColor,
-                                      ),
-                                    ),
-                                    SizedBox(width: 3.w),
-                                  ],
-                                ),
-                              ],
-                            ),
+                            // Row(
+                            //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            //   children: [
+                            //     Row(
+                            //       children: [
+                            //         Icon(
+                            //           Icons.location_on_outlined,
+                            //           size: 2.h,
+                            //           color: gBlackColor,
+                            //         ),
+                            //         Text(
+                            //           "4 Kms",
+                            //           style: TextStyle(
+                            //             fontSize: listOtherSize,
+                            //             fontFamily: listOtherFont,
+                            //             color: gBlackColor,
+                            //           ),
+                            //         ),
+                            //       ],
+                            //     ),
+                            //     Row(
+                            //       children: [
+                            //         Icon(
+                            //           Icons.timer_sharp,
+                            //           size: 2.h,
+                            //           color: gBlackColor,
+                            //         ),
+                            //         Text(
+                            //           "Posted at ${DateFormat.jm().format(DateTime.parse(widget.donorData['created_at']))}",
+                            //           style: TextStyle(
+                            //             fontSize: listOtherSize,
+                            //             fontFamily: listOtherFont,
+                            //             color: gBlackColor,
+                            //           ),
+                            //         ),
+                            //         SizedBox(width: 3.w),
+                            //       ],
+                            //     ),
+                            //   ],
+                            // ),
                           ],
                         ),
                       ),
