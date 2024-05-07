@@ -324,6 +324,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
         SizedBox(height: 4.h),
         profileTile("First Name: ", profileDetails['f_name'] ?? ''),
         profileTile("Last Name: ", profileDetails['l_name'] ?? ''),
+        profileDetails['email'] == null
+            ? const SizedBox()
+            : profileTile("Email : ", profileDetails['email'] ?? ''),
+        profileDetails['phone'] == null
+            ? const SizedBox()
+            : profileTile("Mobile Number : ", profileDetails['phone'] ?? ''),
         profileDetails['age'] == null
             ? const SizedBox()
             : profileTile("Age: ", profileDetails['age'] ?? ''),

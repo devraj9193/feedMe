@@ -104,7 +104,6 @@ class _LoginScreenState extends State<LoginScreen> {
     passwordController.addListener(() {
       setState(() {});
     });
-    getCurrentLocation();
 
     // phoneController.addListener(() {
     //   setState(() {});
@@ -117,23 +116,6 @@ class _LoginScreenState extends State<LoginScreen> {
     //     mobileFormKey.currentState!.validate();
     //   }
     // });
-  }
-
-
-  getCurrentLocation() async {
-    Location location = Location();
-
-    location.onLocationChanged.listen((event) {
-      LocationData? currentLocation = event;
-
-      _pref.setDouble(AppConfig.userLongitude, currentLocation.longitude ?? 0.0);
-      _pref.setDouble(AppConfig.userLatitude, currentLocation.latitude ?? 0.0);
-
-      print("userLongitude : ${_pref.getDouble(AppConfig.userLongitude)}");
-      print("userLatitude : ${_pref.getDouble(AppConfig.userLatitude)}");
-
-      setState(() {});
-    });
   }
 
   @override

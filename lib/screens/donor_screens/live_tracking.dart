@@ -65,7 +65,7 @@ class _LiveTrackingState extends State<LiveTracking> {
               color: gBlackColor,
             ),
           ),
-          const GoogleMapScreen(),
+          // const GoogleMapScreen(),
           buildAssignPartner(
             "Lorem ipsum dolor sit amet, consetetur sadipscing elitr sadipscing elitr",
             "Thanks for donating",

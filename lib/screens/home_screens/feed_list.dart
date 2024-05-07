@@ -1,7 +1,6 @@
 import 'package:feed_me/dashboard_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_sizer/flutter_sizer.dart';
-import 'package:image_network/image_network.dart';
 import 'package:intl/intl.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -110,6 +109,7 @@ class _FeedListState extends State<FeedList> {
       scrollDirection: Axis.vertical,
       physics: const ScrollPhysics(),
       shrinkWrap: true,
+      reverse: true,
       itemCount: widget.feedList.length,
       itemBuilder: ((context, index) {
         var feed = widget.feedList[index];

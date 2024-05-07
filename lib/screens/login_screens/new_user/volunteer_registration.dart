@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_sizer/flutter_sizer.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:google_maps_place_picker_mb/google_maps_place_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -10,13 +11,11 @@ import '../../../utils/app_config.dart';
 import '../../../utils/constants.dart';
 import '../../../utils/widgets/widgets.dart';
 import '../../../utils/widgets/will_pop_widget.dart';
-import '../feed_me_screen.dart';
-
-import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import 'package:google_maps_flutter_android/google_maps_flutter_android.dart';
 import 'package:google_maps_flutter_platform_interface/google_maps_flutter_platform_interface.dart';
 
+import '../feed_me_screen.dart';
 import 'donor_registration.dart';
 
 class VolunteerRegistration extends StatefulWidget {
@@ -37,6 +36,7 @@ class _VolunteerRegistrationState extends State<VolunteerRegistration> {
   final firstNameFormKey = GlobalKey<FormState>();
   final lastNameFormKey = GlobalKey<FormState>();
   final emailFormKey = GlobalKey<FormState>();
+  final mobileFormKey = GlobalKey<FormState>();
   final pwdFormKey = GlobalKey<FormState>();
   final ageFormKey = GlobalKey<FormState>();
   final genderFormKey = GlobalKey<FormState>();
@@ -55,11 +55,13 @@ class _VolunteerRegistrationState extends State<VolunteerRegistration> {
       _ageFocus,
       _genderFocus,
       _locationFocus,
-      _idProofFocus;
+      _idProofFocus,
+      _phoneFocus;
 
   TextEditingController firstNameController = TextEditingController();
   TextEditingController lastNameController = TextEditingController();
   TextEditingController emailController = TextEditingController();
+  TextEditingController mobileController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
   TextEditingController ageController = TextEditingController();
   TextEditingController genderController = TextEditingController();
@@ -84,6 +86,9 @@ class _VolunteerRegistrationState extends State<VolunteerRegistration> {
     emailController.addListener(() {
       setState(() {});
     });
+    mobileController.addListener(() {
+      setState(() {});
+    });
     passwordController.addListener(() {
       setState(() {});
     });
@@ -98,6 +103,13 @@ class _VolunteerRegistrationState extends State<VolunteerRegistration> {
     });
     idProofController.addListener(() {
       setState(() {});
+    });
+
+    _phoneFocus = FocusNode();
+    _phoneFocus.addListener(() {
+      if (!_phoneFocus.hasFocus) {
+        mobileFormKey.currentState!.validate();
+      }
     });
     getDeviceId();
   }
@@ -115,9 +127,11 @@ class _VolunteerRegistrationState extends State<VolunteerRegistration> {
   @override
   void dispose() {
     _nameFocus.removeListener(() {});
+    _phoneFocus.removeListener(() {});
     firstNameController.removeListener(() {});
     lastNameController.removeListener(() {});
     emailController.removeListener(() {});
+    mobileController.removeListener(() {});
     passwordController.removeListener(() {});
     ageController.removeListener(() {});
     genderController.removeListener(() {});
@@ -367,6 +381,84 @@ class _VolunteerRegistrationState extends State<VolunteerRegistration> {
                 keyboardType: TextInputType.emailAddress,
               ),
             ),
+            buildTextFieldHeading("Mobile No"),
+            Form(
+              autovalidateMode: AutovalidateMode.disabled,
+              key: mobileFormKey,
+              child: TextFormField(
+                cursorColor: gPrimaryColor,
+                textAlignVertical: TextAlignVertical.center,
+                maxLength: 10,
+                controller: mobileController,
+                style: TextStyle(
+                    fontFamily: eUser().userTextFieldFont,
+                    fontSize: eUser().userTextFieldFontSize,
+                    color: eUser().userTextFieldColor),
+                validator: (value) {
+                  if (value!.isEmpty) {
+                    return 'Please enter your Mobile Number';
+                  } else if (!isPhone(value)) {
+                    return 'Please enter valid Mobile Number';
+                  } else {
+                    return null;
+                  }
+                },
+                onFieldSubmitted: (value) {
+                  print("isPhone(value): ${isPhone(value)}");
+                  print("!_phoneFocus.hasFocus: ${_phoneFocus.hasFocus}");
+                  if (isPhone(value) && _phoneFocus.hasFocus) {
+                    // getOtp(value);
+                    _phoneFocus.unfocus();
+                  }
+                },
+                focusNode: _phoneFocus,
+                decoration: InputDecoration(
+                  focusedBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(
+                          color: eUser().focusedBorderColor,
+                          width: eUser().focusedBorderWidth)
+                      // borderRadius: BorderRadius.circular(25.0),
+                      ),
+                  enabledBorder: (mobileController.text.isEmpty)
+                      ? null
+                      : UnderlineInputBorder(
+                          borderSide: BorderSide(
+                              color: eUser().focusedBorderColor,
+                              width: eUser().focusedBorderWidth)),
+                  isDense: true,
+                  counterText: '',
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 2),
+                  suffixIcon: (mobileController.text.length != 10 &&
+                          mobileController.text.isNotEmpty)
+                      ? InkWell(
+                          onTap: () {
+                            mobileController.clear();
+                          },
+                          child: const Icon(
+                            Icons.cancel_outlined,
+                            color: gBlackColor,
+                          ),
+                        )
+                      : (mobileController.text.length == 10)
+                          ? Icon(
+                              Icons.check_circle_outline,
+                              color: gPrimaryColor,
+                              size: 2.h,
+                            )
+                          : const SizedBox(),
+                  hintText: "Enter Mobile Number",
+                  hintStyle: TextStyle(
+                    fontFamily: eUser().userTextFieldHintFont,
+                    color: eUser().userTextFieldHintColor,
+                    fontSize: eUser().userTextFieldHintFontSize,
+                  ),
+                ),
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                textInputAction: TextInputAction.next,
+                textAlign: TextAlign.start,
+                keyboardType: TextInputType.phone,
+              ),
+            ),
             buildTextFieldHeading("Password"),
             Form(
               autovalidateMode: AutovalidateMode.disabled,
@@ -489,7 +581,6 @@ class _VolunteerRegistrationState extends State<VolunteerRegistration> {
               autovalidateMode: AutovalidateMode.disabled,
               key: genderFormKey,
               child: DropdownButtonFormField(
-
                 icon: Icon(
                   Icons.keyboard_arrow_down_sharp,
                   color: gGreyColor.withOpacity(0.5),
@@ -558,157 +649,49 @@ class _VolunteerRegistrationState extends State<VolunteerRegistration> {
                     ),
                   ),
                   suffixIcon: GestureDetector(
-                    // onTap: () {
-                    //   initRenderer();
-                    //   Navigator.push(
-                    //     context,
-                    //     MaterialPageRoute(
-                    //       builder: (context) {
-                    //         return PlacePicker(
-                    //           resizeToAvoidBottomInset:
-                    //               false, // only works in page mode, less flickery
-                    //           apiKey: AppConfig.googleApiKey,
-                    //           hintText: "Find a place ...",
-                    //           searchingText: "Please wait ...",
-                    //           selectText: "Select place",
-                    //           outsideOfPickAreaText: "Place not in area",
-                    //           initialPosition:
-                    //               VolunteerRegistration.kInitialPosition,
-                    //           useCurrentLocation: true,
-                    //           selectInitialPosition: true,
-                    //           usePinPointingSearch: true,
-                    //           usePlaceDetailSearch: true,
-                    //           zoomGesturesEnabled: true,
-                    //           zoomControlsEnabled: true,
-                    //           // ignoreLocationPermissionErrors: true,
-                    //           onMapCreated: (GoogleMapController controller) {
-                    //             print("Map created");
-                    //           },
-                    //           onPlacePicked: (PickResult result) {
-                    //             print(
-                    //                 "Place picked: ${result.formattedAddress}");
-                    //             setState(() {
-                    //               selectedPlace = result;
-                    //               Navigator.of(context).pop();
-                    //             });
-                    //           },
-                    //           onMapTypeChanged: (MapType mapType) {
-                    //             print(
-                    //                 "Map type changed to ${mapType.toString()}");
-                    //           },
-                    //           // #region additional stuff
-                    //           // forceSearchOnZoomChanged: true,
-                    //           // automaticallyImplyAppBarLeading: false,
-                    //           // autocompleteLanguage: "ko",
-                    //           // region: 'au',
-                    //           // pickArea: CircleArea(
-                    //           //   center: HomePage.kInitialPosition,
-                    //           //   radius: 300,
-                    //           //   fillColor: Colors.lightGreen
-                    //           //       .withGreen(255)
-                    //           //       .withAlpha(32),
-                    //           //   strokeColor: Colors.lightGreen
-                    //           //       .withGreen(255)
-                    //           //       .withAlpha(192),
-                    //           //   strokeWidth: 2,
-                    //           // ),
-                    //           // selectedPlaceWidgetBuilder: (_, selectedPlace, state, isSearchBarFocused) {
-                    //           //   print("state: $state, isSearchBarFocused: $isSearchBarFocused");
-                    //           //   return isSearchBarFocused
-                    //           //       ? Container()
-                    //           //       : FloatingCard(
-                    //           //           bottomPosition: 0.0, // MediaQuery.of(context) will cause rebuild. See MediaQuery document for the information.
-                    //           //           leftPosition: 0.0,
-                    //           //           rightPosition: 0.0,
-                    //           //           width: 500,
-                    //           //           borderRadius: BorderRadius.circular(12.0),
-                    //           //           child: state == SearchingState.Searching
-                    //           //               ? Center(child: CircularProgressIndicator())
-                    //           //               : ElevatedButton(
-                    //           //                   child: Text("Pick Here"),
-                    //           //                   onPressed: () {
-                    //           //                     // IMPORTANT: You MUST manage selectedPlace data yourself as using this build will not invoke onPlacePicker as
-                    //           //                     //            this will override default 'Select here' Button.
-                    //           //                     print("do something with [selectedPlace] data");
-                    //           //                     Navigator.of(context).pop();
-                    //           //                   },
-                    //           //                 ),
-                    //           //         );
-                    //           // },
-                    //           // pinBuilder: (context, state) {
-                    //           //   if (state == PinState.Idle) {
-                    //           //     return Icon(Icons.favorite_border);
-                    //           //   } else {
-                    //           //     return Icon(Icons.favorite);
-                    //           //   }
-                    //           // },
-                    //           // introModalWidgetBuilder: (context,  close) {
-                    //           //   return Positioned(
-                    //           //     top: MediaQuery.of(context).size.height * 0.35,
-                    //           //     right: MediaQuery.of(context).size.width * 0.15,
-                    //           //     left: MediaQuery.of(context).size.width * 0.15,
-                    //           //     child: Container(
-                    //           //       width: MediaQuery.of(context).size.width * 0.7,
-                    //           //       child: Material(
-                    //           //         type: MaterialType.canvas,
-                    //           //         color: Theme.of(context).cardColor,
-                    //           //         shape: RoundedRectangleBorder(
-                    //           //             borderRadius: BorderRadius.circular(12.0),
-                    //           //         ),
-                    //           //         elevation: 4.0,
-                    //           //         child: ClipRRect(
-                    //           //           borderRadius: BorderRadius.circular(12.0),
-                    //           //           child: Container(
-                    //           //             padding: EdgeInsets.all(8.0),
-                    //           //             child: Column(
-                    //           //               children: [
-                    //           //                 SizedBox.fromSize(size: new Size(0, 10)),
-                    //           //                 Text("Please select your preferred address.",
-                    //           //                   style: TextStyle(
-                    //           //                     fontWeight: FontWeight.bold,
-                    //           //                   )
-                    //           //                 ),
-                    //           //                 SizedBox.fromSize(size: new Size(0, 10)),
-                    //           //                 SizedBox.fromSize(
-                    //           //                   size: Size(MediaQuery.of(context).size.width * 0.6, 56), // button width and height
-                    //           //                   child: ClipRRect(
-                    //           //                     borderRadius: BorderRadius.circular(10.0),
-                    //           //                     child: Material(
-                    //           //                       child: InkWell(
-                    //           //                         overlayColor: MaterialStateColor.resolveWith(
-                    //           //                           (states) => Colors.blueAccent
-                    //           //                         ),
-                    //           //                         onTap: close,
-                    //           //                         child: Row(
-                    //           //                           mainAxisAlignment: MainAxisAlignment.center,
-                    //           //                           children: [
-                    //           //                             Icon(Icons.check_sharp, color: Colors.blueAccent),
-                    //           //                             SizedBox.fromSize(size: new Size(10, 0)),
-                    //           //                             Text("OK",
-                    //           //                               style: TextStyle(
-                    //           //                                 color: Colors.blueAccent
-                    //           //                               )
-                    //           //                             )
-                    //           //                           ],
-                    //           //                         )
-                    //           //                       ),
-                    //           //                     ),
-                    //           //                   ),
-                    //           //                 )
-                    //           //               ]
-                    //           //             )
-                    //           //           ),
-                    //           //         ),
-                    //           //       ),
-                    //           //     )
-                    //           //   );
-                    //           // },
-                    //           // #endregion
-                    //         );
-                    //       },
-                    //     ),
-                    //   );
-                    // },
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) {
+                            return PlacePicker(
+                              resizeToAvoidBottomInset:
+                              false, // only works in page mode, less flickery
+                              apiKey: AppConfig.googleApiKey,
+                              hintText: "Find a place ...",
+                              searchingText: "Please wait ...",
+                              selectText: "Select place",
+                              outsideOfPickAreaText: "Place not in area",
+                              initialPosition: LatLng(
+                                  _pref?.getDouble(AppConfig.userLatitude) ?? 0.0,
+                                  _pref?.getDouble(AppConfig.userLongitude) ?? 0.0),
+                              useCurrentLocation: true,
+                              selectInitialPosition: true,
+                              usePinPointingSearch: true,
+                              usePlaceDetailSearch: true,
+                              zoomGesturesEnabled: true,
+                              zoomControlsEnabled: true,
+                              onMapCreated: (GoogleMapController controller) {
+                                print("Map created");
+                              },
+                              onPlacePicked: (PickResult result) {
+                                print(
+                                    "Place picked: ${result.formattedAddress}");
+                                setState(() {
+                                  selectedPlace = result;
+                                  Navigator.of(context).pop();
+                                });
+                              },
+                              onMapTypeChanged: (MapType mapType) {
+                                print(
+                                    "Map type changed to ${mapType.toString()}");
+                              },
+                            );
+                          },
+                        ),
+                      );
+                      // pickLocation(context);
+                    },
                     child: Icon(
                       Icons.my_location_outlined,
                       color: textFieldHintColor.withOpacity(0.5),
@@ -769,38 +752,41 @@ class _VolunteerRegistrationState extends State<VolunteerRegistration> {
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 5.h),
               child: ElevatedButton(
-                onPressed: isLoading ? null : () {
-                  print("Volunteer Registration");
+                onPressed: isLoading
+                    ? null
+                    : () {
+                        print("Volunteer Registration");
 
-                  if (firstNameFormKey.currentState!.validate() &&
-                      lastNameFormKey.currentState!.validate() &&
-                      emailFormKey.currentState!.validate() &&
-                      pwdFormKey.currentState!.validate() &&
-                      ageFormKey.currentState!.validate() &&
-                      genderFormKey.currentState!.validate() &&
-                      idProofFormKey.currentState!.validate()) {
-                    if (firstNameController.text.isNotEmpty &&
-                        lastNameController.text.isNotEmpty &&
-                        passwordController.text.isNotEmpty &&
-                        emailController.text.isNotEmpty &&
-                        ageController.text.isNotEmpty &&
-                        genderController.text.isNotEmpty &&
-                        idProofController.text.isNotEmpty) {
-                      print("Volunteer Registration");
-                      volunteerRegistration(
-                        firstNameController.text.trim(),
-                        lastNameController.text.trim(),
-                        emailController.text.trim(),
-                        passwordController.text.trim(),
-                        ageController.text.trim(),
-                        genderController.text.trim(),
-                        idProofController.text.trim(),
-                        'Volunteer',
-                      );
-
-                    }
-                  }
-                },
+                        if (firstNameFormKey.currentState!.validate() &&
+                            lastNameFormKey.currentState!.validate() &&
+                            emailFormKey.currentState!.validate() &&
+                            pwdFormKey.currentState!.validate() &&
+                            ageFormKey.currentState!.validate() &&
+                            genderFormKey.currentState!.validate() &&
+                            idProofFormKey.currentState!.validate()) {
+                          if (firstNameController.text.isNotEmpty &&
+                              lastNameController.text.isNotEmpty &&
+                              passwordController.text.isNotEmpty &&
+                              emailController.text.isNotEmpty &&
+                              ageController.text.isNotEmpty &&
+                              genderController.text.isNotEmpty &&
+                              idProofController.text.isNotEmpty) {
+                            print("Volunteer Registration");
+                            volunteerRegistration(
+                              firstNameController.text.trim(),
+                              lastNameController.text.trim(),
+                              emailController.text.trim(),
+                              mobileController.text.trim(),
+                              passwordController.text.trim(),
+                              ageController.text.trim(),
+                              genderController.text.trim(),
+                              idProofController.text.trim(),
+                              'Volunteer',
+                              locationController.text.trim(),
+                            );
+                          }
+                        }
+                      },
                 style: ElevatedButton.styleFrom(
                   foregroundColor:
                       loginButtonSelectedColor, //change background color of button
@@ -814,16 +800,16 @@ class _VolunteerRegistrationState extends State<VolunteerRegistration> {
                 child: Center(
                   child: isLoading
                       ? buildThreeBounceIndicator(
-                    color: buttonColor,
-                  )
-                      :Text(
-                    "Register",
-                    style: TextStyle(
-                      fontFamily: buttonFont,
-                      fontSize: buttonFontSize,
-                      color: buttonColor,
-                    ),
-                  ),
+                          color: buttonColor,
+                        )
+                      : Text(
+                          "Register",
+                          style: TextStyle(
+                            fontFamily: buttonFont,
+                            fontSize: buttonFontSize,
+                            color: buttonColor,
+                          ),
+                        ),
                 ),
               ),
             )
@@ -839,7 +825,10 @@ class _VolunteerRegistrationState extends State<VolunteerRegistration> {
         .hasMatch(email);
   }
 
-    buildTextFieldHeading(String title, {bool isRequired = false}) {
+  bool isPhone(String input) =>
+      RegExp(r'^(?:[+0]9)?[0-9]{10}$').hasMatch(input);
+
+  buildTextFieldHeading(String title, {bool isRequired = false}) {
     return Padding(
       padding: EdgeInsets.only(top: 2.h),
       child: Row(
@@ -868,53 +857,66 @@ class _VolunteerRegistrationState extends State<VolunteerRegistration> {
   }
 
   void volunteerRegistration(
-      String fName,
-      String lName,
-      String email,
-      String password,
-      String age,
-      String gender,
-      String idProofNumber,
-      String userType,
-      ) async {
+    String fName,
+    String lName,
+    String email,
+    String phone,
+    String password,
+    String age,
+    String gender,
+    String idProofNumber,
+    String userType,
+    String location,
+  ) async {
+    print("--- VOLUNTEER LOGIN ---");
     setState(() {
       isLoading = true;
     });
 
-    // try {
-
-      final res = await supabase.from('users').insert({
+    try {
+      Map m = {
         'f_name': fName,
         'l_name': lName,
         'email': email,
+        'phone': phone,
         'password': password,
         'age': age,
         'gender': gender,
         'id_proof_number': idProofNumber,
         'user_type': 'Volunteer',
-        // 'location':locationController.text.trim(),
+        'location': location,
+      };
+
+      print("Map $m");
+
+      final res = await supabase.from('users').insert(m);
+
+      print("response : $res");
+
+      AppConfig().showSnackbar(context, "Registered Successfully", isError: false);
+
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (context) => const FeedMeScreen(),
+        ),
+      );
+      setState(() {
+        isLoading = false;
       });
-
-      print("response : ${res}");
-
-    // } on PostgrestException catch (error) {
-    //   AppConfig().showSnackbar(context, error.message, isError: true);
-    // }
-    // catch (error) {
-    //   AppConfig()
-    //       .showSnackbar(context, 'Unexpected error occurred', isError: true);
-    // }
-    // finally {
-    //   if (mounted) {
-    //     setState(() {
-    //       isLoading = false;
-    //     });
-    //   }
-    //   Navigator.of(context).pushReplacement(
-    //     MaterialPageRoute(
-    //       builder: (context) => const FeedMeScreen(),
-    //     ),
-    //   );
-    // }
+    } on PostgrestException catch (error) {
+      setState(() {
+        isLoading = false;
+      });
+      AppConfig().showSnackbar(context, error.message, isError: true);
+    } catch (error) {
+      setState(() {
+        isLoading = false;
+      });
+      AppConfig()
+          .showSnackbar(context, 'Unexpected error occurred', isError: true);
+    }
+    setState(() {
+      isLoading = false;
+    });
   }
 }

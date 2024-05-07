@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_sizer/flutter_sizer.dart';
 import 'package:image_network/image_network.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../main.dart';
 import '../../utils/app_config.dart';
 import '../../utils/constants.dart';
@@ -23,7 +24,8 @@ class NavigationPickUp extends StatefulWidget {
 }
 
 class _NavigationPickUpState extends State<NavigationPickUp> {
-  List<Map<String, dynamic>> navigationData = [];
+  List<Map<String, dynamic>> navigationAshramData = [];
+  List<Map<String, dynamic>> navigationDonorData = [];
 
   var loading = true;
 
@@ -41,23 +43,29 @@ class _NavigationPickUpState extends State<NavigationPickUp> {
     // getProfileDetails =
     //     UserProfileService(repository: repository).getUserProfileService();
 
+    print("navigation : ${widget.file}");
+
     print("donorId : ${widget.file["donor_id"]}");
     print("ashramId : ${widget.file["ashram_id"]}");
 
     try {
-      final response = widget.isDelivery
-          ? await supabase
-              .from('users')
-              .select('*')
-              .eq('id', widget.file["donor_id"])
-          : await supabase
-              .from('ashrams')
-              .select('*')
-              .eq('id', widget.file["ashram_id"]);
+      final response = await supabase
+          .from('users')
+          .select('*')
+          .eq('id', widget.file["donor_id"]);
+      final resp = await supabase
+          .from('ashrams')
+          .select('*')
+          .eq('id', widget.file["ashram_id"]);
 
-      navigationData = response;
+      setState(() {
+        navigationAshramData = resp;
 
-      print("Donor Details : $navigationData");
+        navigationDonorData = response;
+
+        print("navigationAshramData : ${navigationAshramData}");
+        print("navigationDonorData : ${navigationDonorData}");
+      });
     } on PostgrestException catch (error) {
       AppConfig().showSnackbar(context, error.message, isError: true);
     } catch (error) {
@@ -102,26 +110,35 @@ class _NavigationPickUpState extends State<NavigationPickUp> {
                           padding: EdgeInsets.symmetric(vertical: 35.h),
                           child: buildThreeBounceIndicator(color: gBlackColor),
                         )
-                      : navigationData.isEmpty
+                      : navigationDonorData.isEmpty ||
+                              navigationAshramData.isEmpty
                           ? const NoDataFound()
-                          : widget.isDelivery
-                              ? mainView(
-                                  ashramName: navigationData[0]['res_name'],
-                                  ashramAddress: navigationData[0]['location'],
-                                  deliveryName: navigationData[0]['res_name'],
-                                  deliveryPickUp: "15 Mins",
-                                  deliveryDistance: "3.1 Kms",
-                                )
-                              : mainView(
-                                  ashramName: navigationData[0]['ashram_name'],
-                                  ashramAddress: navigationData[0]['address'],
-                                  deliveryName: navigationData[0]
-                                      ['ashram_name'],
-                                  deliveryPickUp: "15 Mins",
-                                  deliveryDistance: "3.1 Kms",
-                                ),
+                          : mainView(
+                              donorData: navigationDonorData[0],
+                              ashramData: navigationAshramData[0]),
+                  //                 ashramName: navigationData[0]['res_name'],
+                  //                 ashramAddress: navigationData[0]['location'],
+                  //                 deliveryName: navigationData[0]['res_name'],
+                  //                 deliveryPickUp: "15 Mins",
+                  //                 deliveryDistance: "3.1 Kms",
+                  //                 ashramPic:
+                  //                     navigationData[0]['image_url'] ?? '',
+                  //                 ashramPhone: navigationData[0]['phone'] ?? '',
+                  // )
+                  //             : mainView(
+                  //                 ashramName: navigationData[0]['ashram_name'],
+                  //                 ashramAddress: navigationData[0]['address'],
+                  //                 deliveryName: navigationData[0]
+                  //                     ['ashram_name'],
+                  //                 deliveryPickUp: "15 Mins",
+                  //                 deliveryDistance: "3.1 Kms",
+                  //                 ashramPic:
+                  //                     navigationData[0]['image_url'] ?? '',
+                  //                 ashramPhone:
+                  //                     navigationData[0]['phone'] ?? '',
                 ),
               ),
+              // ),
             ],
           ),
         ),
@@ -129,13 +146,10 @@ class _NavigationPickUpState extends State<NavigationPickUp> {
     );
   }
 
-  mainView({
-    String? ashramName,
-    String? ashramAddress,
-    String? deliveryName,
-    String? deliveryPickUp,
-    String? deliveryDistance,
-  }) {
+  mainView(
+      {required Map<String, dynamic> donorData,
+      required Map<String, dynamic> ashramData}) {
+    print("donorData['res_name'] : ${navigationDonorData[0]}");
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 6.w),
       child: Column(
@@ -150,7 +164,9 @@ class _NavigationPickUpState extends State<NavigationPickUp> {
             ),
           ),
           Text(
-            ashramName ?? "Hari Nagar Ashram",
+            widget.isDelivery
+                ? donorData['res_name'] ?? ''
+                : ashramData['ashram_name'] ?? '',
             style: TextStyle(
               fontFamily: kFontBold,
               fontSize: backButton,
@@ -158,16 +174,25 @@ class _NavigationPickUpState extends State<NavigationPickUp> {
             ),
           ),
           Text(
-            ashramAddress ?? "1298 A divine view main road",
+            widget.isDelivery
+                ? donorData['location'] ?? ''
+                : ashramData['address'] ?? '',
             style: TextStyle(
               fontFamily: kFontMedium,
               fontSize: textFieldHintText,
               color: gBlackColor,
             ),
           ),
-          const GoogleMapScreen(),
+          GoogleMapScreen(
+            sourceLatitude: ashramData['latitude'],
+            sourceLongitude: ashramData['longitude'],
+            destinationLatitude: 0.0,
+            destinationLongitude: 0.0,
+          ),
           Text(
-            "Here to pick up the food from Dawat Restaurant",
+            !widget.isDelivery
+                ? "Here to pick up the food from ${ashramData['ashram_name'] ?? ''}"
+                : "Here Deliver the food to ${donorData['res_name'] ?? ''}",
             style: TextStyle(
               fontFamily: kFontMedium,
               fontSize: textFieldHintText,
@@ -188,24 +213,26 @@ class _NavigationPickUpState extends State<NavigationPickUp> {
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: ImageNetwork(
-                    image: '',
+                    image: widget.isDelivery
+                        ? ashramData['image_url'] ?? ''
+                        : donorData['profile_pic'] ?? '',
                     height: 5.h,
                     width: 15.w,
                     // duration: 1500,
                     curve: Curves.easeIn,
-                    // onPointer: true,
-                    // debugPrint: false,
-                    // fullScreen: false,
-                    // fitAndroidIos: BoxFit.cover,
-                    // fitWeb: BoxFitWeb.contain,
-                    // borderRadius: BorderRadius.circular(8),
-                    // onError: const Icon(
-                    //   Icons.image_outlined,
-                    //   color: loginButtonSelectedColor,
-                    // ),
-                    // onTap: () {
-                    //   debugPrint("©gabriel_patrick_souza");
-                    // },
+                    onPointer: true,
+                    debugPrint: false,
+                    fullScreen: false,
+                    fitAndroidIos: BoxFit.cover,
+                    fitWeb: BoxFitWeb.contain,
+                    borderRadius: BorderRadius.circular(8),
+                    onError: const Icon(
+                      Icons.image_outlined,
+                      color: loginButtonSelectedColor,
+                    ),
+                    onTap: () {
+                      debugPrint("©gabriel_patrick_souza");
+                    },
                   ),
                 ),
                 SizedBox(width: 2.w),
@@ -214,7 +241,9 @@ class _NavigationPickUpState extends State<NavigationPickUp> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        ashramName ?? 'Hari Nagar Ashram',
+                        widget.isDelivery
+                            ? ashramData['ashram_name'] ?? ''
+                            : donorData['res_name'] ?? '',
                         style: TextStyle(
                           fontSize: listHeadingSize,
                           fontFamily: listHeadingFont,
@@ -233,7 +262,16 @@ class _NavigationPickUpState extends State<NavigationPickUp> {
                   ),
                 ),
                 GestureDetector(
-                  onTap: () {},
+                  onTap: () async {
+                    String url = widget.isDelivery
+                        ? "tel:${ashramData['phone']}"
+                        : "tel:${donorData['phone']}";
+                    if (await canLaunch(url)) {
+                      await launch(url);
+                    } else {
+                      throw 'Could not launch $url';
+                    }
+                  },
                   child: Container(
                     padding: const EdgeInsets.all(5),
                     decoration: BoxDecoration(
@@ -252,22 +290,25 @@ class _NavigationPickUpState extends State<NavigationPickUp> {
             ),
           ),
           buildPickUp(
-              Icon(
-                Icons.access_time,
-                size: 3.h,
-                color: gBlackColor,
-              ),
-              "Pick Up",
-              "$deliveryPickUp"),
+            Icon(
+              Icons.access_time,
+              size: 3.h,
+              color: gBlackColor,
+            ),
+            "Pick Up",
+            widget.isDelivery
+                ? widget.file['expectation_time']
+                : widget.file['pickup_time'],
+          ),
           SizedBox(height: 2.h),
-          buildPickUp(
-              Icon(
-                Icons.trending_down_sharp,
-                size: 3.h,
-                color: gBlackColor,
-              ),
-              "Distance",
-              "$deliveryDistance"),
+          // buildPickUp(
+          //     Icon(
+          //       Icons.trending_down_sharp,
+          //       size: 3.h,
+          //       color: gBlackColor,
+          //     ),
+          //     "Distance",
+          //     "deliveryDistance"),
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 5.h),
             child: ElevatedButton(

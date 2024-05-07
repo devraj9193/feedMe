@@ -4,21 +4,22 @@ import 'package:flutter_sizer/flutter_sizer.dart';
 import 'package:image_network/image_network.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:timelines/timelines.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../main.dart';
 import '../../utils/app_config.dart';
 import '../../utils/constants.dart';
 import '../../utils/widgets/no_data_found.dart';
 import '../../utils/widgets/widgets.dart';
-
-import '../donor_screens/live_tracking.dart';
 import 'ashram_food_request_list_screen.dart';
 
 class VolunteerDeliveryDetails extends StatefulWidget {
   final dynamic volunteerData;
   final dynamic ashramFoodRequestList;
   const VolunteerDeliveryDetails(
-      {Key? key, required this.volunteerData, required this.ashramFoodRequestList})
+      {Key? key,
+      required this.volunteerData,
+      required this.ashramFoodRequestList})
       : super(key: key);
 
   @override
@@ -40,10 +41,26 @@ class _VolunteerDeliveryDetailsState extends State<VolunteerDeliveryDetails> {
   TextEditingController specialInstructionsController = TextEditingController();
 
   bool isLoading = false;
-  List<Map<String, dynamic>> getDeliveryList = [];
+
+  List<Map<String, dynamic>> ashramList = [];
 
   @override
   void initState() {
+    print("ashram list : ${widget.ashramFoodRequestList}");
+
+    ashramList.add(widget.ashramFoodRequestList);
+
+    foodItemsController =
+        TextEditingController(text: widget.volunteerData['food_items']);
+    cookingDateController =
+        TextEditingController(text: widget.volunteerData['cooking_date']);
+    cookingTimeController =
+        TextEditingController(text: widget.volunteerData['cooking_time']);
+    pickupTimeController =
+        TextEditingController(text: widget.volunteerData['pickup_time']);
+    specialInstructionsController = TextEditingController(
+        text: widget.volunteerData['special_instructions']);
+
     super.initState();
     foodItemsController.addListener(() {
       setState(() {});
@@ -60,44 +77,6 @@ class _VolunteerDeliveryDetailsState extends State<VolunteerDeliveryDetails> {
     specialInstructionsController.addListener(() {
       setState(() {});
     });
-    getDeliveryDetails();
-  }
-
-  getDeliveryDetails() async {
-    setState(() {
-      isLoading = true;
-    });
-
-    // getProfileDetails =
-    //     UserProfileService(repository: repository).getUserProfileService();
-
-    try {
-      final data = await supabase
-          .from('ashram_requests')
-          .select('*')
-          .eq('id', widget.volunteerData['id']);
-
-      getDeliveryList = data;
-
-      print("Delivery Details : $getDeliveryList");
-
-      foodItemsController.text = data[0]['food_items'];
-      cookingDateController.text = data[0]['cooking_date'];
-      cookingTimeController.text = data[0]['cooking_time'];
-      pickupTimeController.text = data[0]['pickup_time'];
-      specialInstructionsController.text = data[0]['special_instructions'];
-    } on PostgrestException catch (error) {
-      AppConfig().showSnackbar(context, error.message, isError: true);
-    } catch (error) {
-      AppConfig()
-          .showSnackbar(context, 'Unexpected error occurred', isError: true);
-    } finally {
-      if (mounted) {
-        setState(() {
-          isLoading = false;
-        });
-      }
-    }
   }
 
   @override
@@ -145,7 +124,7 @@ class _VolunteerDeliveryDetailsState extends State<VolunteerDeliveryDetails> {
                         padding: EdgeInsets.symmetric(vertical: 35.h),
                         child: buildThreeBounceIndicator(color: gBlackColor),
                       )
-                    : getDeliveryList.isEmpty
+                    : widget.volunteerData.isEmpty
                         ? const NoDataFound()
                         : mainView(),
               ),
@@ -162,9 +141,8 @@ class _VolunteerDeliveryDetailsState extends State<VolunteerDeliveryDetails> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(height: 2.h),
           Text(
-            "Donation ID #${getDeliveryList[0]['id']}",
+            "Donation ID #${widget.volunteerData['id']}",
             style: TextStyle(
               fontFamily: kFontBold,
               fontSize: backButton,
@@ -197,11 +175,11 @@ class _VolunteerDeliveryDetailsState extends State<VolunteerDeliveryDetails> {
                     border: Border.all(color: gBlackColor, width: 1.5),
                   );
                 },
-                itemExtent: 12.h,
-                itemCount: dummyData.length,
+                itemExtent: 14.h,
+                itemCount: ashramList.length,
                 contentsBuilder: (context, index) {
                   return Container(
-                    height: 10.h,
+                    height: 12.h,
                     margin:
                         EdgeInsets.symmetric(vertical: 1.h, horizontal: 2.w),
                     decoration: BoxDecoration(
@@ -217,31 +195,31 @@ class _VolunteerDeliveryDetailsState extends State<VolunteerDeliveryDetails> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Container(
-                            height: 14.h,
+                            height: 16.h,
                             width: 30.w,
                             decoration: BoxDecoration(
                               color: imageBackGround,
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: ImageNetwork(
-                              image: '',
-                              height: 14.h,
+                              image: ashramList[index]['image_url'] ?? '',
+                              height: 16.h,
                               width: 30.w,
                               // duration: 1500,
                               curve: Curves.easeIn,
-                              // onPointer: true,
-                              // debugPrint: false,
-                              // fullScreen: false,
-                              // fitAndroidIos: BoxFit.cover,
-                              // fitWeb: BoxFitWeb.contain,
-                              // borderRadius: BorderRadius.circular(12),
-                              // onError: const Icon(
-                              //   Icons.image_outlined,
-                              //   color: loginButtonSelectedColor,
-                              // ),
-                              // onTap: () {
-                              //   debugPrint("©gabriel_patrick_souza");
-                              // },
+                              onPointer: true,
+                              debugPrint: false,
+                              fullScreen: false,
+                              fitAndroidIos: BoxFit.cover,
+                              fitWeb: BoxFitWeb.contain,
+                              borderRadius: BorderRadius.circular(12),
+                              onError: const Icon(
+                                Icons.image_outlined,
+                                color: loginButtonSelectedColor,
+                              ),
+                              onTap: () {
+                                debugPrint("©gabriel_patrick_souza");
+                              },
                             ),
                           ),
                           SizedBox(width: 2.w),
@@ -253,7 +231,8 @@ class _VolunteerDeliveryDetailsState extends State<VolunteerDeliveryDetails> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      dummyData[index].name,
+                                      ashramList[index]['ashram_name'],
+                                      maxLines: 1,
                                       style: TextStyle(
                                         fontSize: listHeadingSize,
                                         fontFamily: listHeadingFont,
@@ -261,18 +240,26 @@ class _VolunteerDeliveryDetailsState extends State<VolunteerDeliveryDetails> {
                                       ),
                                     ),
                                     Text(
-                                      dummyData[index].address,
+                                      ashramList[index]['address'],
+                                      maxLines: 2,
                                       style: TextStyle(
                                         fontSize: listOtherSize,
                                         fontFamily: listOtherFont,
                                         color: gBlackColor,
                                       ),
                                     ),
-                                    SizedBox(height: 0.5.h),
+                                    SizedBox(height: 0.8.h),
                                     Row(
                                       children: [
                                         GestureDetector(
-                                          onTap: () {},
+                                          onTap: () async {
+                                            String url = "tel:${ashramList[index]['phone']}";
+                                            if (await canLaunch(url)) {
+                                              await launch(url);
+                                            } else {
+                                              throw 'Could not launch $url';
+                                            }
+                                          },
                                           child: Container(
                                             padding: const EdgeInsets.all(5),
                                             decoration: BoxDecoration(
@@ -290,42 +277,42 @@ class _VolunteerDeliveryDetailsState extends State<VolunteerDeliveryDetails> {
                                           ),
                                         ),
                                         SizedBox(width: 5.w),
-                                        GestureDetector(
-                                          onTap: () {
-                                            // Navigator.of(context).push(
-                                            //   MaterialPageRoute(
-                                            //     builder: (context) =>
-                                            //         dummyData[index].isFrom == 1
-                                            //             ? NavigationPickUp(
-                                            //                 name:
-                                            //                     dummyData[index]
-                                            //                         .name,
-                                            //               )
-                                            //             : NavigationPickUp(
-                                            //                 name:
-                                            //                     dummyData[index]
-                                            //                         .name,
-                                            //                 isDelivery: true,
-                                            //               ),
-                                            //   ),
-                                            // );
-                                          },
-                                          child: Container(
-                                            padding: const EdgeInsets.all(5),
-                                            decoration: BoxDecoration(
-                                              color: gWhiteColor,
-                                              border: Border.all(
-                                                  color: gBlackColor, width: 1),
-                                              borderRadius:
-                                                  BorderRadius.circular(5),
-                                            ),
-                                            child: Icon(
-                                              Icons.navigation,
-                                              color: gBlackColor,
-                                              size: 1.5.h,
-                                            ),
-                                          ),
-                                        ),
+                                        // GestureDetector(
+                                        //   onTap: () {
+                                        //     // Navigator.of(context).push(
+                                        //     //   MaterialPageRoute(
+                                        //     //     builder: (context) =>
+                                        //     //         dummyData[index].isFrom == 1
+                                        //     //             ? NavigationPickUp(
+                                        //     //                 name:
+                                        //     //                     dummyData[index]
+                                        //     //                         .name,
+                                        //     //               )
+                                        //     //             : NavigationPickUp(
+                                        //     //                 name:
+                                        //     //                     dummyData[index]
+                                        //     //                         .name,
+                                        //     //                 isDelivery: true,
+                                        //     //               ),
+                                        //     //   ),
+                                        //     // );
+                                        //   },
+                                        //   child: Container(
+                                        //     padding: const EdgeInsets.all(5),
+                                        //     decoration: BoxDecoration(
+                                        //       color: gWhiteColor,
+                                        //       border: Border.all(
+                                        //           color: gBlackColor, width: 1),
+                                        //       borderRadius:
+                                        //           BorderRadius.circular(5),
+                                        //     ),
+                                        //     child: Icon(
+                                        //       Icons.navigation,
+                                        //       color: gBlackColor,
+                                        //       size: 1.5.h,
+                                        //     ),
+                                        //   ),
+                                        // ),
                                       ],
                                     ),
                                   ],
@@ -805,7 +792,7 @@ class _VolunteerDeliveryDetailsState extends State<VolunteerDeliveryDetails> {
       final res = await await supabase.from('ashram_requests').update({
         'status': 'accepted',
         'volunteer_id': "${_prefs?.getString(AppConfig.userId)}"
-      }).eq('id', getDeliveryList[0]['id']);
+      }).eq('id', widget.volunteerData['id']);
 
       // final res = await supabase
       //     .from('ashram_requests')

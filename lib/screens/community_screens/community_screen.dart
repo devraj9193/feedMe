@@ -59,12 +59,12 @@ class _CommunityScreenState extends State<CommunityScreen>
     try {
       final data = await supabase.from('ashrams').select('*');
 
-      final datas = await supabase
-          .from('ashrams')
-          .select('*')
-          .eq('ngo_id', _pref.getString(AppConfig.userId) as Object);
-
-      print("ngo : $datas");
+      // final datas = await supabase
+      //     .from('ashrams')
+      //     .select('*')
+      //     .eq('ngo_id', _pref.getString(AppConfig.userId) as Object);
+      //
+      // print("ngo : $datas");
 
       print("getDashboardData : $data");
 

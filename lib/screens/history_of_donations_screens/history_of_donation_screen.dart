@@ -37,8 +37,6 @@ class _HistoryOfDonationState extends State<HistoryOfDonation> {
 
   List<Map<String, dynamic>> getDeliveredData = [];
 
-  final _prefs = AppConfig().preferences;
-
   getNgoData() async {
     setState(() {
       loading = true;
@@ -128,7 +126,7 @@ class _HistoryOfDonationState extends State<HistoryOfDonation> {
         dynamic file = lst[index];
         return GestureDetector(
           onTap: () {
-            Navigator.of(context).push(
+           widget.userType == "Donor" ? null : Navigator.of(context).push(
               MaterialPageRoute(
                 builder: (context) => FeedbackScreen(
                   file: file,

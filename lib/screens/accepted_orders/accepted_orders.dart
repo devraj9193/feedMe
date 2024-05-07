@@ -55,7 +55,7 @@ class _AcceptedOrdersScreenState extends State<AcceptedOrdersScreen> {
       for (var element in response) {
         print("element :$element");
 
-        if (element['status'] == "accepted") {
+        if (element['status'] != "delivered") {
           getAcceptedLists.add(element);
 
           print("getAcceptedLists : $getAcceptedLists");
@@ -303,6 +303,7 @@ class _AcceptedOrdersScreenState extends State<AcceptedOrdersScreen> {
         MaterialPageRoute(
           builder: (context) => NavigationPickUp(
             file: file,
+            // isDelivery: true,
           ),
         ),
       );

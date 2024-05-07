@@ -78,7 +78,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
       final feedData = await supabase.from('feeds').select('*');
 
-      print("feedData : $feedData");
+      print("feedData : ${feedData.last}");
 
       print("cardData : $cardData");
 

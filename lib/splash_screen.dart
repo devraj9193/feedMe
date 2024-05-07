@@ -5,6 +5,7 @@ import 'package:feed_me/utils/constants.dart';
 import 'package:feed_me/utils/widgets/open_alert_box.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_sizer/flutter_sizer.dart';
+import 'package:location/location.dart';
 import 'package:open_store/open_store.dart';
 import 'dashboard_screen.dart';
 
@@ -37,9 +38,25 @@ class _SplashScreenState extends State<SplashScreen> with WidgetsBindingObserver
   void initState() {
     WidgetsBinding.instance.addObserver(this);
     getDeviceId();
+    getCurrentLocation();
     super.initState();
   }
 
+  getCurrentLocation() async {
+    Location location = Location();
+
+    location.onLocationChanged.listen((event) {
+      LocationData? currentLocation = event;
+
+      _pref.setDouble(AppConfig.userLongitude, currentLocation.longitude ?? 0.0);
+      _pref.setDouble(AppConfig.userLatitude, currentLocation.latitude ?? 0.0);
+
+      print("userLongitude : ${_pref.getDouble(AppConfig.userLongitude)}");
+      print("userLatitude : ${_pref.getDouble(AppConfig.userLatitude)}");
+
+      setState(() {});
+    });
+  }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {

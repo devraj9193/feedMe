@@ -25,69 +25,72 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
 
   @override
   Widget build(BuildContext context) {
-
-
     return WillPopWidget(
       child: Scaffold(
         body: SafeArea(
-          child: Padding(
-            padding: EdgeInsets.only(top: 2.h, left: 5.w, right: 5.w),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                buildAppBar(
-                  () {
-                    Navigator.pop(context);
-                  },
-                  isBackEnable: true,
-                  showLogo: false,
-                  showChild: true,
-                  child: Text(
-                    "Feedback",
-                    style: TextStyle(
-                      fontFamily: kFontBold,
-                      fontSize: 15.dp,
-                      color: gBlackColor,
-                    ),
-                  ),
-                ),
-                SizedBox(height: 2.h),
-                buildRating(),
-                SizedBox(height: 4.h),
-                Text(
-                  "Comments :",
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              buildAppBar(
+                () {
+                  Navigator.pop(context);
+                },
+                isBackEnable: true,
+                showLogo: false,
+                showChild: true,
+                child: Text(
+                  "Feedback",
                   style: TextStyle(
-                    fontFamily: kFontMedium,
-                    fontSize: 13.dp,
+                    fontFamily: kFontBold,
+                    fontSize: 15.dp,
                     color: gBlackColor,
                   ),
                 ),
-                Container(
-                  height: 12.h,
-                  margin: EdgeInsets.symmetric(horizontal: 0.w, vertical: 3.h),
-                  padding: EdgeInsets.symmetric(horizontal: 3.w),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(10),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.grey.withOpacity(0.3),
-                        blurRadius: 20,
-                        offset: const Offset(2, 10),
+              ),
+              SizedBox(height: 2.h),
+              Expanded(
+                  child: SingleChildScrollView(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(vertical: 2.h,horizontal: 5.w),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      buildRating(),
+                      SizedBox(height: 4.h),
+                      Text(
+                        "Comments :",
+                        style: TextStyle(
+                          fontFamily: kFontMedium,
+                          fontSize: 13.dp,
+                          color: gBlackColor,
+                        ),
                       ),
-                    ],
-                  ),
-                  child: TextFormField(
-                    controller: commentController,
-                    cursorColor: gPrimaryColor,
-                    style: TextStyle(
-                        fontFamily: kFontBook,
-                        color: gTextColor,
-                        fontSize: 13.dp),
-                    decoration: InputDecoration(
-                      suffixIcon: commentController.text.isEmpty
-                          ? const SizedBox()
-                          : InkWell(
+                      Container(
+                        height: 12.h,
+                        margin: EdgeInsets.symmetric(horizontal: 0.w, vertical: 3.h),
+                        padding: EdgeInsets.symmetric(horizontal: 3.w),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(10),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.withOpacity(0.3),
+                              blurRadius: 20,
+                              offset: const Offset(2, 10),
+                            ),
+                          ],
+                        ),
+                        child: TextFormField(
+                          controller: commentController,
+                          cursorColor: gPrimaryColor,
+                          style: TextStyle(
+                              fontFamily: kFontBook,
+                              color: gTextColor,
+                              fontSize: 13.dp),
+                          decoration: InputDecoration(
+                            suffixIcon: commentController.text.isEmpty
+                                ? const SizedBox()
+                                : InkWell(
                               onTap: () {
                                 commentController.clear();
                               },
@@ -96,25 +99,25 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                                 color: gTextColor,
                               ),
                             ),
-                      hintText: "Comments",
-                      border: InputBorder.none,
-                      hintStyle: TextStyle(
-                        fontFamily: "GothamBook",
-                        color: gTextColor,
-                        fontSize: 11.dp,
+                            hintText: "Comments",
+                            border: InputBorder.none,
+                            hintStyle: TextStyle(
+                              fontFamily: "GothamBook",
+                              color: gTextColor,
+                              fontSize: 11.dp,
+                            ),
+                          ),
+                          textInputAction: TextInputAction.next,
+                          textAlign: TextAlign.start,
+                          keyboardType: TextInputType.emailAddress,
+                        ),
                       ),
-                    ),
-                    textInputAction: TextInputAction.next,
-                    textAlign: TextAlign.start,
-                    keyboardType: TextInputType.emailAddress,
-                  ),
-                ),
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 5.h),
-                  child: ElevatedButton(
-                    onPressed: acceptLoading
-                        ? null
-                        : () {
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 5.h),
+                        child: ElevatedButton(
+                          onPressed: acceptLoading
+                              ? null
+                              : () {
                             if (rating == 0.0) {
                               AppConfig().showSnackbar(
                                   context, "Please select the rating",isError: true);
@@ -129,20 +132,20 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                               );
                             }
                           },
-                    style: ElevatedButton.styleFrom(
-                      foregroundColor:
-                          loginButtonSelectedColor, //change background color of button
-                      backgroundColor:
-                          loginButtonColor, //change text color of button
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      elevation: 2.0,
-                    ),
-                    child: Center(
-                      child: (acceptLoading)
-                          ? buildThreeBounceIndicator(color: gBlackColor)
-                          : Text(
+                          style: ElevatedButton.styleFrom(
+                            foregroundColor:
+                            loginButtonSelectedColor, //change background color of button
+                            backgroundColor:
+                            loginButtonColor, //change text color of button
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            elevation: 2.0,
+                          ),
+                          child: Center(
+                            child: (acceptLoading)
+                                ? buildThreeBounceIndicator(color: gBlackColor)
+                                : Text(
                               "Submit",
                               style: TextStyle(
                                 fontFamily: buttonFont,
@@ -150,11 +153,14 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                                 color: buttonColor,
                               ),
                             ),
-                    ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-              ],
-            ),
+              ),),
+            ],
           ),
         ),
       ),
@@ -195,7 +201,6 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
       acceptLoading = true;
     });
     try {
-
       print("Order ID : ${widget.file}");
 
       Map m = {
