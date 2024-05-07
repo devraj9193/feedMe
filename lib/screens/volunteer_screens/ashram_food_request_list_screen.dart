@@ -24,7 +24,7 @@ class AshramFoodRequestListScreen extends StatefulWidget {
 class _AshramFoodRequestListScreenState
     extends State<AshramFoodRequestListScreen> {
   bool isLoading = false;
-  List<Map<String, dynamic>> getDeliveryList = [];
+  List<Map<String, dynamic>> pendingList = [];
 
   @override
   void initState() {
@@ -37,16 +37,22 @@ class _AshramFoodRequestListScreenState
       isLoading = true;
     });
 
-    // getProfileDetails =
-    //     UserProfileService(repository: repository).getUserProfileService();
-
     try {
       final data =
           await supabase.from('ashram_requests').select('*').eq('ashram_id', widget.volunteerData['id']);
 
-      getDeliveryList = data;
+      print("Donation List : $data");
 
-      print("Delivery Details : $getDeliveryList");
+      for (var element in data) {
+        print("element :$element");
+
+        if (element['status'] == "pending") {
+          pendingList.add(element);
+
+          print("pendingList : $pendingList");
+        }
+      }
+
     } on PostgrestException catch (error) {
       AppConfig().showSnackbar(context, error.message, isError: true);
     } catch (error) {
@@ -95,7 +101,7 @@ class _AshramFoodRequestListScreenState
                           padding: EdgeInsets.symmetric(vertical: 35.h),
                           child: buildThreeBounceIndicator(color: gBlackColor),
                         )
-                      : getDeliveryList.isEmpty
+                      : pendingList.isEmpty
                           ? const NoDataFound()
                           : buildList(),
                 ),
@@ -141,18 +147,18 @@ class _AshramFoodRequestListScreenState
 
   buildList() {
     return ListView.builder(
-      itemCount: getDeliveryList.length,
+      itemCount: pendingList.length,
       shrinkWrap: true,
       scrollDirection: Axis.vertical,
       physics: const ScrollPhysics(),
       itemBuilder: (context, index) {
-        dynamic file = getDeliveryList[index];
-        return  file['status'] == "pending" ? GestureDetector(
+        dynamic file = pendingList[index];
+        return  GestureDetector(
           onTap: () {
             Navigator.of(context).pushReplacement(
               MaterialPageRoute(
                 builder: (context) => VolunteerDeliveryDetails(
-                  volunteerData: file,
+                  volunteerData: file, ashramFoodRequestList: widget.volunteerData,
                 ),
               ),
             );
@@ -303,7 +309,7 @@ class _AshramFoodRequestListScreenState
               ),
             ),
           ),
-        ) : const SizedBox();
+        );
       },
     );
   }

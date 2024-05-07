@@ -288,8 +288,12 @@ class _NgoScreenState extends State<NgoScreen>
                             controller: tabController,
                             // physics: const NeverScrollableScrollPhysics(),
                             children: [
-                              buildList(getPickedUpData),
-                              buildList(getDeliveredData),
+                              getPickedUpData.isEmpty
+                                  ? const NoDataFound()
+                                  : buildList(getPickedUpData),
+                              getDeliveredData.isEmpty
+                                  ? const NoDataFound()
+                                  : buildList(getDeliveredData),
                             ],
                           ),
                         ),
@@ -514,7 +518,7 @@ class _NgoScreenState extends State<NgoScreen>
     } else if (file['status'] == "delivered") {
       Navigator.of(context).push(
         MaterialPageRoute(
-          builder: (context) =>  FeedbackScreen(
+          builder: (context) => FeedbackScreen(
             file: file,
           ),
         ),

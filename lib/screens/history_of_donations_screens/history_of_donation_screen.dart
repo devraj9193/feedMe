@@ -3,6 +3,7 @@ import 'package:feed_me/utils/widgets/will_pop_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_sizer/flutter_sizer.dart';
 import 'package:image_network/image_network.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../main.dart';
@@ -12,7 +13,8 @@ import '../../utils/widgets/no_data_found.dart';
 import '../community_screens/feedback_screen.dart';
 
 class HistoryOfDonation extends StatefulWidget {
-  const HistoryOfDonation({super.key});
+  final String userType;
+  const HistoryOfDonation({super.key, required this.userType});
 
   @override
   State<HistoryOfDonation> createState() => _HistoryOfDonationState();
@@ -21,6 +23,8 @@ class HistoryOfDonation extends StatefulWidget {
 class _HistoryOfDonationState extends State<HistoryOfDonation> {
   TabController? tabController;
   final searchController = TextEditingController();
+  final SharedPreferences _pref = AppConfig().preferences!;
+  String? userType;
 
   @override
   void initState() {
@@ -40,11 +44,19 @@ class _HistoryOfDonationState extends State<HistoryOfDonation> {
       loading = true;
     });
 
+    setState(() {
+      userType = _pref.getString(AppConfig.userType) ?? '';
+    });
+
     try {
-      final response = await supabase
-          .from('ashram_requests')
-          .select('*')
-          .eq('donor_id', "${_prefs?.getString(AppConfig.userId)}");
+      final response = await supabase.from('ashram_requests').select('*');
+          // .eq(
+          // userType == "Donor"
+          //     ? 'donor_id'
+          //     : userType == "Volunteer"
+          //         ? 'volunteer_id'
+          //         : "ngo_id",
+          // "${_prefs?.getString(AppConfig.userId)}");
 
       print("getDashboardNGOData : $response");
 
@@ -78,14 +90,29 @@ class _HistoryOfDonationState extends State<HistoryOfDonation> {
     return WillPopWidget(
       child: Scaffold(
         body: SafeArea(
-          child: loading
-              ? Padding(
-                  padding: EdgeInsets.symmetric(vertical: 35.h),
-                  child: buildThreeBounceIndicator(color: gBlackColor),
-                )
-              : getDeliveredData.isEmpty
-                  ? const NoDataFound()
-                  : buildList(getDeliveredData),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Text(
+              //   "Donations",
+              //   style: TextStyle(
+              //     fontFamily: kFontBold,
+              //     fontSize: backButton,
+              //     color: gBlackColor,
+              //   ),
+              // ),
+              Expanded(
+                child: loading
+                    ? Padding(
+                        padding: EdgeInsets.symmetric(vertical: 35.h),
+                        child: buildThreeBounceIndicator(color: gBlackColor),
+                      )
+                    : getDeliveredData.isEmpty
+                        ? const NoDataFound()
+                        : buildList(getDeliveredData),
+              ),
+            ],
+          ),
         ),
       ),
     );

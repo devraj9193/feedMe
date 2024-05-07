@@ -26,7 +26,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   bool showFab = true;
   final int savePrevIndex = 0;
 
-  String? userName, userType,userRestaurant, userAddress;
+  String? userName, userType, userRestaurant, userAddress;
 
   final SharedPreferences _pref = AppConfig().preferences!;
 
@@ -44,43 +44,28 @@ class _DashboardScreenState extends State<DashboardScreen> {
     });
   }
 
-  List<BottomNavigationBarItem> items = [
-    BottomNavigationBarItem(
-      icon: Icon(
-        Icons.home,
-        size: 3.h,
-      ),
-      label: 'Home',
-    ),
-    BottomNavigationBarItem(
-      icon: Icon(
-        Icons.groups,
-        size: 3.h,
-      ),
-      label: 'Community',
-    ),
-    BottomNavigationBarItem(
-      icon: Icon(
-        Icons.pin_drop_outlined,
-        size: 3.h,
-      ),
-      label: 'Donations',
-    ),
-    BottomNavigationBarItem(
-      icon: Icon(
-        Icons.notifications_active_outlined,
-        size: 3.h,
-      ),
-      label: 'Accepted',
-    ),
-    BottomNavigationBarItem(
-      icon: Icon(
-        Icons.manage_accounts_outlined,
-        size: 3.h,
-      ),
-      label: 'profile',
-    ),
-  ];
+  ngoPageCaller(int index) {
+    switch (index) {
+      case 0:
+        {
+          return const HomeScreen();
+        }
+      case 1:
+        {
+          return const CommunityScreen();
+        }
+      case 2:
+        {
+          return HistoryOfDonation(
+            userType: userType.toString(),
+          );
+        }
+      case 3:
+        {
+          return const SettingsScreen();
+        }
+    }
+  }
 
   pageCaller(int index) {
     switch (index) {
@@ -94,11 +79,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
         }
       case 2:
         {
-          return const HistoryOfDonation();
+          return HistoryOfDonation(
+            userType: userType.toString(),
+          );
         }
       case 3:
         {
-          return const AcceptedOrdersScreen();
+          return AcceptedOrdersScreen(
+            userType: userType.toString(),
+          );
         }
       case 4:
         {
@@ -110,7 +99,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
-
     print("User Type : $userType");
 
     var subTitle = userType == "Donor" ? userRestaurant : userAddress;
@@ -122,92 +110,95 @@ class _DashboardScreenState extends State<DashboardScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              showFab
-                  ?  SizedBox(height: 1.h) : const SizedBox(),
+              showFab ? SizedBox(height: 1.h) : const SizedBox(),
               showFab
                   ? Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  buildAppBar(
-                    () {},
-                    isBackEnable: false,
-                    showLogo: false,
-                    showChild: true,
-                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Icon(
-                          Icons.location_on_outlined,
-                          color: gBlackColor,
-                          size: 3.5.h,
+                        buildAppBar(
+                          () {},
+                          isBackEnable: false,
+                          showLogo: false,
+                          showChild: true,
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.location_on_outlined,
+                                color: gBlackColor,
+                                size: 3.5.h,
+                              ),
+                              SizedBox(width: 1.w),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    "Welcome ${toBeginningOfSentenceCase(userName)}",
+                                    style: TextStyle(
+                                      fontFamily: kFontBold,
+                                      fontSize: backButton,
+                                      color: gBlackColor,
+                                    ),
+                                  ),
+                                  Text(
+                                    subTitle ?? "",
+                                    style: TextStyle(
+                                      fontFamily: kFontBook,
+                                      fontSize: otpSubHeading,
+                                      color: gBlackColor,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
-                        SizedBox(width: 1.w),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "Welcome ${toBeginningOfSentenceCase(userName)}",
-                              style: TextStyle(
-                                fontFamily: kFontBold,
-                                fontSize: backButton,
-                                color: gBlackColor,
+                        Padding(
+                          padding: EdgeInsets.only(right: 3.w, top: 1.5.h),
+                          child: Container(
+                            height: 35,
+                            width: 35,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: gGreyColor.withOpacity(0.5),
                               ),
                             ),
-                            Text(
-                              subTitle ?? "",
-                              style: TextStyle(
-                                fontFamily: kFontBook,
-                                fontSize: otpSubHeading,
-                                color: gBlackColor,
+                            child: ImageNetwork(
+                              image: '',
+                              height: 35,
+                              width: 35,
+                              // duration: 1500,
+                              curve: Curves.easeIn,
+                              onPointer: true,
+                              debugPrint: false,
+                              fullScreen: false,
+                              fitAndroidIos: BoxFit.cover,
+                              fitWeb: BoxFitWeb.contain,
+                              borderRadius: BorderRadius.circular(70),
+                              onError: Icon(
+                                Icons.person,
+                                color: gGreyColor.withOpacity(0.5),
                               ),
+                              onTap: () {
+                                Navigator.of(context).pushReplacement(
+                                  MaterialPageRoute(
+                                    builder: (context) => const DashboardScreen(
+                                      index: 4,
+                                    ),
+                                  ),
+                                );
+                              },
                             ),
-                          ],
+                          ),
                         ),
                       ],
-                    ),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.only(right: 3.w),
-                    child: Container(
-                      height: 35,
-                      width: 35,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: gGreyColor.withOpacity(0.5),
-                        ),
-                      ),
-                      child: ImageNetwork(
-                        image: '',
-                        height: 35,
-                        width: 35,
-                        // duration: 1500,
-                        curve: Curves.easeIn,
-                        onPointer: true,
-                        debugPrint: false,
-                        fullScreen: false,
-                        fitAndroidIos: BoxFit.cover,
-                        fitWeb: BoxFitWeb.contain,
-                        borderRadius: BorderRadius.circular(70),
-                        onError: Icon(
-                          Icons.person,
-                          color: gGreyColor.withOpacity(0.5),
-                        ),
-                        onTap: () {
-                          Navigator.of(context).pushReplacement(
-                            MaterialPageRoute(
-                              builder: (context) => const DashboardScreen(
-                                index: 4,
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                  ),
-                ],
-              ) : const SizedBox(),
-              Expanded(child:
-              pageCaller(_bottomNavIndex),),
+                    )
+                  : const SizedBox(),
+              Expanded(
+                child: userType == "ngo"
+                    ? ngoPageCaller(_bottomNavIndex)
+                    : pageCaller(_bottomNavIndex),
+              ),
             ],
           ),
         ),
@@ -224,7 +215,74 @@ class _DashboardScreenState extends State<DashboardScreen> {
             fontFamily: kFontMedium,
             color: gBlackColor,
           ),
-          items: items,
+          items: userType == "ngo"
+              ? [
+                  BottomNavigationBarItem(
+                    icon: Icon(
+                      Icons.home,
+                      size: 3.h,
+                    ),
+                    label: 'Home',
+                  ),
+                  BottomNavigationBarItem(
+                    icon: Icon(
+                      Icons.groups,
+                      size: 3.h,
+                    ),
+                    label: 'Community',
+                  ),
+                  BottomNavigationBarItem(
+                    icon: Icon(
+                      Icons.pin_drop_outlined,
+                      size: 3.h,
+                    ),
+                    label: 'Donations',
+                  ),
+                  BottomNavigationBarItem(
+                    icon: Icon(
+                      Icons.manage_accounts_outlined,
+                      size: 3.h,
+                    ),
+                    label: 'profile',
+                  ),
+                ]
+              : [
+                  BottomNavigationBarItem(
+                    icon: Icon(
+                      Icons.home,
+                      size: 3.h,
+                    ),
+                    label: 'Home',
+                  ),
+                  BottomNavigationBarItem(
+                    icon: Icon(
+                      Icons.groups,
+                      size: 3.h,
+                    ),
+                    label: 'Community',
+                  ),
+                  BottomNavigationBarItem(
+                    icon: Icon(
+                      Icons.pin_drop_outlined,
+                      size: 3.h,
+                    ),
+                    label: 'Donations',
+                  ),
+                  BottomNavigationBarItem(
+                    icon: Icon(
+                      Icons.notifications_active_outlined,
+                      size: 3.h,
+                    ),
+                    label: userType == "Donor" ? "Pending" : 'Accepted',
+                  ),
+                  BottomNavigationBarItem(
+                    icon: Icon(
+                      Icons.manage_accounts_outlined,
+                      size: 3.h,
+                    ),
+                    label: 'profile',
+                  ),
+                ],
         ),
         // bottomNavigationBar: BottomBarDefault(
         //   items: items,

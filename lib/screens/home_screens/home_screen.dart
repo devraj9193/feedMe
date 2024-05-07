@@ -1,12 +1,10 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_sizer/flutter_sizer.dart';
-import 'package:image_network/image_network.dart';
-import 'package:intl/intl.dart';
 import 'package:location/location.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-
 import '../../dashboard_screen.dart';
 import '../../main.dart';
 import '../../utils/app_config.dart';
@@ -57,7 +55,7 @@ class _HomeScreenState extends State<HomeScreen> {
       print("userLongitude : ${_pref.getDouble(AppConfig.userLongitude)}");
       print("userLatitude : ${_pref.getDouble(AppConfig.userLatitude)}");
 
-      setState(() {});
+      // setState(() {});
     });
   }
 
@@ -289,49 +287,60 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
         isButton
-            ? Container(
-                margin: EdgeInsets.symmetric(vertical: 1.h, horizontal: 3.w),
-                padding: EdgeInsets.symmetric(vertical: 2.h, horizontal: 3.w),
-                width: double.maxFinite,
-                decoration: BoxDecoration(
-                  color: gWhiteColor,
-                  borderRadius: BorderRadius.circular(10),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.3),
-                      blurRadius: 10,
-                      offset: const Offset(2, 3),
-                    ),
-                  ],
+            ? GestureDetector(
+          onTap: (){
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(
+                builder: (context) => const DashboardScreen(
+                  index: 2,
                 ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    GestureDetector(
-                      onTap: () {},
-                      child: Text(
-                        "Activity",
-                        style: TextStyle(
-                          fontSize: 14.dp,
-                          fontFamily: kFontMedium,
-                          color: gTextColor,
+              ),
+            );
+          },
+              child: Container(
+                  margin: EdgeInsets.symmetric(vertical: 1.h, horizontal: 3.w),
+                  padding: EdgeInsets.symmetric(vertical: 2.h, horizontal: 3.w),
+                  width: double.maxFinite,
+                  decoration: BoxDecoration(
+                    color: gWhiteColor,
+                    borderRadius: BorderRadius.circular(10),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.3),
+                        blurRadius: 10,
+                        offset: const Offset(2, 3),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      GestureDetector(
+                        onTap: () {},
+                        child: Text(
+                          "Activity",
+                          style: TextStyle(
+                            fontSize: 14.dp,
+                            fontFamily: kFontMedium,
+                            color: gTextColor,
+                          ),
                         ),
                       ),
-                    ),
-                    GestureDetector(
-                      onTap: () {},
-                      child: Text(
-                        "Donation",
-                        style: TextStyle(
-                          fontSize: 14.dp,
-                          fontFamily: kFontMedium,
-                          color: gTextColor,
+                      GestureDetector(
+                        onTap: () {},
+                        child: Text(
+                          "Donation",
+                          style: TextStyle(
+                            fontSize: 14.dp,
+                            fontFamily: kFontMedium,
+                            color: gTextColor,
+                          ),
                         ),
-                      ),
-                    )
-                  ],
+                      )
+                    ],
+                  ),
                 ),
-              )
+            )
             : const SizedBox(),
       ],
     );
@@ -348,7 +357,7 @@ class _HomeScreenState extends State<HomeScreen> {
             child: CarouselSlider(
               carouselController: carouselController,
               options: CarouselOptions(
-                  viewportFraction: .6,
+                  viewportFraction: 0.6,
                   enlargeCenterPage: true,
                   scrollDirection: Axis.horizontal,
                   autoPlay: true,
@@ -359,19 +368,53 @@ class _HomeScreenState extends State<HomeScreen> {
                   }),
               items: getCardList.map((e) {
                 print("feed images : $e");
-                return Container(
-                  width: double.maxFinite,
-                  decoration: BoxDecoration(
-                    color: kNumberCircleRed.withOpacity(0.3),
-                    borderRadius: BorderRadius.circular(10),
-                    image: DecorationImage(
-                      image: NetworkImage(
-                        "${e['image_url']}",
+                return GestureDetector(
+                  onTap: (){
+                    Navigator.of(context).pushReplacement(
+                      MaterialPageRoute(
+                        builder: (context) => const DashboardScreen(
+                          index: 1,
+                        ),
                       ),
-                      fit: BoxFit.fill,
+                    );
+                  },
+                  child: Container(
+                      // width: double.maxFinite,
+                      // decoration: BoxDecoration(
+                      //   color: kNumberCircleRed.withOpacity(0.3),
+                      //   borderRadius: BorderRadius.circular(10),
+                      //   // image: DecorationImage(
+                      //   //   image: NetworkImage(
+                      //   //     "${e['image_url']}",
+                      //   //   ),
+                      //   //   fit: BoxFit.fill,
+                      //   // ),
+                      // ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(10),
+                      child: FadeInImage(
+                        placeholder: const AssetImage("assets/images/Connect Care_logo.png"),
+                        image: CachedNetworkImageProvider("${Uri.parse(e['image_url'] ?? '')}"),
+                        imageErrorBuilder: (_, __, ___) {
+                          return Image.asset("assets/images/Connect Care_logo.png");
+                        },
+                      ),
                     ),
                   ),
                 );
+                //   Container(
+                //   width: double.maxFinite,
+                //   decoration: BoxDecoration(
+                //     color: kNumberCircleRed.withOpacity(0.3),
+                //     borderRadius: BorderRadius.circular(10),
+                //     image: DecorationImage(
+                //       image: NetworkImage(
+                //         "${e['image_url']}",
+                //       ),
+                //       fit: BoxFit.fill,
+                //     ),
+                //   ),
+                // );
               }).toList(),
             ),
           ),

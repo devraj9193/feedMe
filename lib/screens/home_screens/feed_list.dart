@@ -1,7 +1,12 @@
+import 'package:feed_me/dashboard_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_sizer/flutter_sizer.dart';
 import 'package:image_network/image_network.dart';
+import 'package:intl/intl.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../../main.dart';
+import '../../utils/app_config.dart';
 import '../../utils/constants.dart';
 
 class FeedList extends StatefulWidget {
@@ -138,16 +143,28 @@ class _FeedListState extends State<FeedList> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          feed['user_name'] ?? '',
-                          style: TextStyle(
-                              fontFamily: kFontMedium,
-                              color: gBlackColor,
-                              fontSize: 13.dp),
+                        Row(
+                          children: [
+                            Text(
+                              feed['user_name'] ?? '',
+                              style: TextStyle(
+                                  fontFamily: kFontMedium,
+                                  color: gBlackColor,
+                                  fontSize: 15.dp),
+                            ),
+                            Text(
+                              " ${DateFormat.jm().format(DateTime.parse((feed['created_at'].toString())))}",
+                              style: TextStyle(
+                                  fontFamily: kFontMedium,
+                                  color: gGreyColor,
+                                  fontSize: 10.dp),
+                            ),
+                          ],
                         ),
                         SizedBox(width: 1.w),
                         Text(
-                          feed['created_at'] ?? '',
+                          DateFormat('dd MMM yyyy').format(DateTime.parse((feed['created_at'].toString()))).toString(),
+                          // feed['created_at'] ?? '',
                           style: TextStyle(
                               fontFamily: kFontMedium,
                               color: gGreyColor,
@@ -166,7 +183,7 @@ class _FeedListState extends State<FeedList> {
                   ),
                   Visibility(
                     visible: widget.isButton,
-                    child: filterPopUp(),
+                    child: filterPopUp(feed['id']),
                   )
                 ],
               ),
@@ -205,25 +222,26 @@ class _FeedListState extends State<FeedList> {
                     horizontal: 2.w, vertical: 2.h),
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(5),
-                  child: ImageNetwork(
-                    image: feed['file_name'],
-                    height: 20.h,
-                    width: double.maxFinite,
-                    // duration: 1500,
-                    curve: Curves.easeIn,
-                    onPointer: true,
-                    debugPrint: false,
-                    fullScreen: false,
-                    fitAndroidIos: BoxFit.fill,
-                    fitWeb: BoxFitWeb.contain,
-                    borderRadius: BorderRadius.circular(10),
-                    onLoading: const SizedBox(),
-                    onError: const Image(
-                      image: AssetImage(
-                          "assets/images/Connect Care_logo.png"),
-                    ),
-                    onTap: () {},
-                  ),
+                  child: Image(image: NetworkImage(feed['file_name'],),),
+                  // ImageNetwork(
+                  //   image: feed['file_name'],
+                  //   height: 20.h,
+                  //   width: double.maxFinite,
+                  //   // duration: 1500,
+                  //   curve: Curves.easeIn,
+                  //   onPointer: true,
+                  //   debugPrint: false,
+                  //   fullScreen: false,
+                  //   fitAndroidIos: BoxFit.fill,
+                  //   fitWeb: BoxFitWeb.contain,
+                  //   borderRadius: BorderRadius.circular(10),
+                  //   onLoading: const SizedBox(),
+                  //   onError: const Image(
+                  //     image: AssetImage(
+                  //         "assets/images/Connect Care_logo.png"),
+                  //   ),
+                  //   onTap: () {},
+                  // ),
                 ),
               ),
               Text(
@@ -244,7 +262,7 @@ class _FeedListState extends State<FeedList> {
     );
   }
 
-  filterPopUp() {
+  filterPopUp(int id) {
     return PopupMenuButton(
       onSelected: null,
       offset: const Offset(0, 20),
@@ -253,7 +271,9 @@ class _FeedListState extends State<FeedList> {
       itemBuilder: (context) => [
         PopupMenuItem(
           child: GestureDetector(
-            onTap: () {},
+            onTap: () {
+              deleteFeed(id);
+            },
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -275,6 +295,44 @@ class _FeedListState extends State<FeedList> {
         size: 2.5.h,
       ),
     );
+  }
+
+  bool acceptLoading = false;
+
+  void deleteFeed(int id) async {
+    setState(() {
+      acceptLoading = true;
+    });
+    try {
+
+      print("Delete Feed");
+
+      print("feed id : $id");
+
+      final res = await supabase
+          .from('feeds')
+          .delete()
+          .match({ 'id': id});
+
+      print("Feed Delete : $res");
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => const DashboardScreen(index: 0),
+        ),
+      );
+
+    } on PostgrestException catch (error) {
+      AppConfig().showSnackbar(context, error.message, isError: true);
+    } catch (error) {
+      AppConfig()
+          .showSnackbar(context, 'Unexpected error occurred', isError: true);
+    } finally {
+      if (mounted) {
+        setState(() {
+          acceptLoading = false;
+        });
+      }
+    }
   }
 }
 

@@ -12,11 +12,14 @@ import '../../utils/widgets/no_data_found.dart';
 import '../../utils/widgets/widgets.dart';
 
 import '../donor_screens/live_tracking.dart';
+import 'ashram_food_request_list_screen.dart';
 
 class VolunteerDeliveryDetails extends StatefulWidget {
   final dynamic volunteerData;
-
-  const VolunteerDeliveryDetails({Key? key, required this.volunteerData}) : super(key: key);
+  final dynamic ashramFoodRequestList;
+  const VolunteerDeliveryDetails(
+      {Key? key, required this.volunteerData, required this.ashramFoodRequestList})
+      : super(key: key);
 
   @override
   State<VolunteerDeliveryDetails> createState() =>
@@ -116,13 +119,13 @@ class _VolunteerDeliveryDetailsState extends State<VolunteerDeliveryDetails> {
           children: [
             buildAppBar(
               () {
-                Navigator.pop(context);
-                // Navigator.of(context).push(
-                //   MaterialPageRoute(
-                //     builder: (context) =>
-                //     const DashboardScreen(),
-                //   ),
-                // );
+                Navigator.of(context).pushReplacement(
+                  MaterialPageRoute(
+                    builder: (context) => AshramFoodRequestListScreen(
+                      volunteerData: widget.ashramFoodRequestList,
+                    ),
+                  ),
+                );
               },
               showLogo: false,
               showChild: true,
@@ -813,7 +816,9 @@ class _VolunteerDeliveryDetailsState extends State<VolunteerDeliveryDetails> {
       print("submitVolunteer.runtimeType: ${res.runtimeType}");
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
-          builder: (context) => const DashboardScreen(index: 0,),
+          builder: (context) => const DashboardScreen(
+            index: 0,
+          ),
         ),
       );
     } on PostgrestException catch (error) {

@@ -67,7 +67,7 @@ class _VolunteerListState extends State<VolunteerList> {
               Navigator.of(context).pushReplacement(
                 MaterialPageRoute(
                   builder: (context) => const VolunteerDeliveryDetails(
-                    volunteerData: null,
+                    volunteerData: null, ashramFoodRequestList: null,
                   ),
                 ),
               );

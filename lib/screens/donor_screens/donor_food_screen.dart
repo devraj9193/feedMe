@@ -152,7 +152,7 @@ class _DonorFoodScreenState extends State<DonorFoodScreen> {
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: ImageNetwork(
-                      image: widget.donorData['image_url'],
+                      image: widget.donorData['image_url'] ?? '',
                       height: 14.h,
                       width: 32.w,
                       // duration: 1500,

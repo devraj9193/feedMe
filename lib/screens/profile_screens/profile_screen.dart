@@ -66,12 +66,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
           .select('*')
           .eq('email', "${_prefs?.getString(AppConfig.userEmail)}");
 
-      getProfilePic = supabase
-          .storage
-          .from('profile_pic')
-          .getPublicUrl('amith.png');
+      if (response != null) {
+        getProfilePic = supabase.storage
+            .from('profile_pic')
+            .getPublicUrl("${response[0]['profile_pic']}");
 
-      print("getProfilePic : $getProfilePic");
+        print("getProfilePic : $getProfilePic");
+      }
 
       profileData = response;
 
@@ -105,7 +106,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     buildAppBar(
-                      () {Navigator.pop(context);},
+                      () {
+                        Navigator.pop(context);
+                      },
                       isBackEnable: true,
                       showLogo: false,
                       showChild: true,
@@ -221,8 +224,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               backgroundColor: gWhiteColor,
               backgroundImage: (_image != null)
                   ? FileImage(_image!)
-                  : CachedNetworkImageProvider(
-                      profileDetails['profile_pic'] ?? '',
+                  : CachedNetworkImageProvider(getProfilePic ?? '',
                       errorListener: (image) {
                       print("image error");
                       setState(() => photoError = true);
@@ -322,17 +324,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
         SizedBox(height: 4.h),
         profileTile("First Name: ", profileDetails['f_name'] ?? ''),
         profileTile("Last Name: ", profileDetails['l_name'] ?? ''),
-        profileDetails['age'] == null ?  const SizedBox() : profileTile("Age: ", profileDetails['age'] ?? ''),
-        profileDetails['gender'] == null ?  const SizedBox() : genderTile('Gender', profileDetails['gender'] ?? ''),
+        profileDetails['age'] == null
+            ? const SizedBox()
+            : profileTile("Age: ", profileDetails['age'] ?? ''),
+        profileDetails['gender'] == null
+            ? const SizedBox()
+            : genderTile('Gender', profileDetails['gender'] ?? ''),
         SizedBox(height: 4.h),
         Visibility(
           visible: isEdit,
           child: Center(
             child: IntrinsicWidth(
               child: ElevatedButton(
-                onPressed: () {
-                  updateProfileData();
-                },
+                onPressed: acceptLoading
+                    ? null
+                    : () {
+                        updateProfileData();
+                      },
                 style: ElevatedButton.styleFrom(
                   foregroundColor:
                       loginButtonSelectedColor, //change background color of button
@@ -344,14 +352,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   elevation: 2.0,
                 ),
                 child: Center(
-                  child: Text(
-                    "Submit",
-                    style: TextStyle(
-                      fontFamily: buttonFont,
-                      fontSize: buttonFontSize,
-                      color: buttonColor,
-                    ),
-                  ),
+                  child: (acceptLoading)
+                      ? buildThreeBounceIndicator(color: gBlackColor)
+                      : Text(
+                          "Submit",
+                          style: TextStyle(
+                            fontFamily: buttonFont,
+                            fontSize: buttonFontSize,
+                            color: buttonColor,
+                          ),
+                        ),
                 ),
               ),
             ),
@@ -711,32 +721,78 @@ class _ProfileScreenState extends State<ProfileScreen> {
     // print(_image);
   }
 
-  updateProfileData() async {
-    final avatarFile = _image;
+  bool acceptLoading = false;
 
-    final String path = await supabase.storage.from('profile_pic').upload(
-          "${_pref.getString(AppConfig.userName)}.png",
-          avatarFile!,
-          fileOptions: const FileOptions(cacheControl: '3600', upsert: false),
-        );
+  void updateProfileData() async {
+    setState(() {
+      acceptLoading = true;
+    });
+    try {
+      final avatarFile = _image;
 
-    print("Profile update : $path");
+        print("picked image : $avatarFile");
 
-    // final res = await UserProfileService(repository: repository)
-    //     .updateUserProfileService(user);
-    //
-    // if (res.runtimeType == UpdateUserModel) {
-    //   UpdateUserModel model = res as UpdateUserModel;
-    //   AppConfig().showSnackbar(context, model.message ?? '');
-    //   setState(() {
-    //     isEdit = false;
-    //   });
-    //   getProfileData();
-    // } else {
-    //   ErrorModel model = res as ErrorModel;
-    //   AppConfig().showSnackbar(context, model.message ?? '', isError: true);
-    // }
+      final String path = await supabase.storage.from('profile_pic').upload(
+        "${_pref.getString(AppConfig.userName)}.png",
+            avatarFile!,
+            fileOptions: const FileOptions(cacheControl: '3600', upsert: false),
+          );
+
+      print("Profile update : $path");
+
+      print("user_id : ${_prefs?.getString(AppConfig.userId)}");
+
+      if (path.isNotEmpty) {
+        getProfileData();
+        isEdit = false;
+      }
+    } on PostgrestException catch (error) {
+      AppConfig().showSnackbar(context, error.message, isError: true);
+    } catch (error) {
+      AppConfig()
+          .showSnackbar(context, 'Unexpected error occurred', isError: true);
+    } finally {
+      if (mounted) {
+        setState(() {
+          acceptLoading = false;
+        });
+      }
+    }
   }
+
+  // updateProfileData() async {
+  //   final avatarFile = _image;
+  //
+  //
+  //   final String path = await supabase.storage.from('profile_pic').upload(
+  //     "${_image?.path.split('/').last}",
+  //     avatarFile!,
+  //     fileOptions: const FileOptions(cacheControl: '3600', upsert: false),
+  //   );
+  //
+  //   // final String path = await supabase.storage.from('profile_pic').upload(
+  //   //       "${_pref.getString(AppConfig.userName)}.png",
+  //   //       avatarFile!,
+  //   //       fileOptions: const FileOptions(cacheControl: '3600', upsert: false),
+  //   //     );
+  //
+  //   print("Profile update : $path");
+  //
+  //   // final res = await UserProfileService(repository: repository)
+  //   //     .updateUserProfileService(user);
+  //   //
+  //   // if (res.runtimeType == UpdateUserModel) {
+  //   //   UpdateUserModel model = res as UpdateUserModel;
+  //   //   AppConfig().showSnackbar(context, model.message ?? '');
+  //   //   setState(() {
+  //   //     isEdit = false;
+  //   //   });
+  //   //   getProfileData();
+  //   // } else {
+  //   //   ErrorModel model = res as ErrorModel;
+  //   //   AppConfig().showSnackbar(context, model.message ?? '', isError: true);
+  //   // }
+  // }
 
   bool showLogoutProgress = false;
 

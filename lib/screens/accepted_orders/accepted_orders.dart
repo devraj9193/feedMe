@@ -10,19 +10,19 @@ import '../../utils/widgets/no_data_found.dart';
 import '../../utils/widgets/widgets.dart';
 import '../../utils/widgets/will_pop_widget.dart';
 import '../accepted_orders/navigation_pickup.dart';
+import '../community_screens/feedback_screen.dart';
 
 class AcceptedOrdersScreen extends StatefulWidget {
-  const AcceptedOrdersScreen({Key? key}) : super(key: key);
+  final String userType;
+  const AcceptedOrdersScreen({Key? key, required this.userType})
+      : super(key: key);
 
   @override
   State<AcceptedOrdersScreen> createState() => _AcceptedOrdersScreenState();
 }
 
 class _AcceptedOrdersScreenState extends State<AcceptedOrdersScreen> {
-  List<Map<String, dynamic>> acceptedData = [];
-
   final _prefs = AppConfig().preferences;
-
   var loading = true;
 
   @override
@@ -31,25 +31,42 @@ class _AcceptedOrdersScreenState extends State<AcceptedOrdersScreen> {
     getAcceptedList();
   }
 
+  List<Map<String, dynamic>> getAcceptedLists = [];
+  List<Map<String, dynamic>> getPendingLists = [];
+
   getAcceptedList() async {
     setState(() {
       loading = true;
     });
 
-    // getProfileDetails =
-    //     UserProfileService(repository: repository).getUserProfileService();
-
     try {
       print("userId : ${_prefs?.getString(AppConfig.userId)}");
 
-      final response = await supabase
-          .from('ashram_requests')
-          .select('*')
-          .eq('volunteer_id', "${_prefs?.getString(AppConfig.userId)}");
+      final response = await supabase.from('ashram_requests').select('*');
 
-      acceptedData = response;
+      // .eq(userType == "Donor"
+      // ? 'donor_id'
+      // : userType == "Volunteer"
+      // ? 'volunteer_id'
+      // : "ngo_id", "${_prefs?.getString(AppConfig.userId)}");
 
-      print("accepted orders : $acceptedData");
+      print("Donation Lists: $response");
+
+      for (var element in response) {
+        print("element :$element");
+
+        if (element['status'] == "accepted") {
+          getAcceptedLists.add(element);
+
+          print("getAcceptedLists : $getAcceptedLists");
+        }
+
+        if (element['status'] == "pending") {
+          getPendingLists.add(element);
+
+          print("getPendingLists : $getPendingLists");
+        }
+      }
     } on PostgrestException catch (error) {
       AppConfig().showSnackbar(context, error.message, isError: true);
     } catch (error) {
@@ -74,22 +91,27 @@ class _AcceptedOrdersScreenState extends State<AcceptedOrdersScreen> {
                   padding: EdgeInsets.symmetric(vertical: 35.h),
                   child: buildThreeBounceIndicator(color: gBlackColor),
                 )
-              : acceptedData.isEmpty
-                  ? const NoDataFound()
-                  : buildAcceptedDetails(),
+              : widget.userType == "Donor"
+                  ? getPendingLists.isEmpty
+                      ? const NoDataFound()
+                      : buildAcceptedDetails(getPendingLists)
+                  : getAcceptedLists.isEmpty
+                      ? const NoDataFound()
+                      : buildAcceptedDetails(getAcceptedLists),
         ),
       ),
     );
   }
 
-  buildAcceptedDetails() {
+  buildAcceptedDetails(List<Map<String, dynamic>> getList) {
     return ListView.builder(
-      itemCount: acceptedData.length,
+      itemCount: getList.length,
       shrinkWrap: true,
+      reverse: true,
       scrollDirection: Axis.vertical,
       physics: const ScrollPhysics(),
       itemBuilder: (context, index) {
-        dynamic file = acceptedData[index];
+        dynamic file = getList[index];
         return GestureDetector(
           onTap: () {
             buildOnClick(file);
@@ -294,7 +316,14 @@ class _AcceptedOrdersScreenState extends State<AcceptedOrdersScreen> {
         ),
       );
     } else if (file['status'] == "delivered") {
-      deliveredWidget(context);
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => FeedbackScreen(
+            file: file,
+          ),
+        ),
+      );
+      // deliveredWidget(context);
     } else {}
   }
 
