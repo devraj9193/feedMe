@@ -184,8 +184,8 @@ class _NavigationPickUpState extends State<NavigationPickUp> {
             ),
           ),
           GoogleMapScreen(
-            sourceLatitude: ashramData['latitude'],
-            sourceLongitude: ashramData['longitude'],
+            sourceLatitude: ashramData['latitude'] ?? 0.0,
+            sourceLongitude: ashramData['longitude'] ?? 0.0,
             destinationLatitude: 0.0,
             destinationLongitude: 0.0,
           ),
