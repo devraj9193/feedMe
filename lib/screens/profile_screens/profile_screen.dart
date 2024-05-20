@@ -66,10 +66,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
           .select('*')
           .eq('email', "${_prefs?.getString(AppConfig.userEmail)}");
 
+      print ("User Details : $response");
+
       if (response != null) {
         getProfilePic = supabase.storage
             .from('profile_pic')
-            .getPublicUrl("${response[0]['profile_pic']}");
+            .getPublicUrl("${_pref.getString(AppConfig.userName)}.png");
 
         print("getProfilePic : $getProfilePic");
       }
@@ -345,7 +347,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 onPressed: acceptLoading
                     ? null
                     : () {
-                        updateProfileData();
+                  _image != null ?
+                        updateProfileData() : AppConfig().showSnackbar(context, "Please Pick Image",isError: true);
                       },
                 style: ElevatedButton.styleFrom(
                   foregroundColor:
@@ -737,6 +740,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
       final avatarFile = _image;
 
         print("picked image : $avatarFile");
+
+        print("user name : ${_pref.getString(AppConfig.userName)}");
+
+      final List<FileObject> objects = await supabase
+          .storage
+          .from('profile_pic')
+          .remove(['${_pref.getString(AppConfig.userName)}.png']);
+
+      print("Delete Pic : $objects");
 
       final String path = await supabase.storage.from('profile_pic').upload(
         "${_pref.getString(AppConfig.userName)}.png",

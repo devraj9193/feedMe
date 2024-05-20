@@ -398,8 +398,16 @@ class _NavigationPickUpState extends State<NavigationPickUp> {
     print("volunteerId : $volunteerId");
 
     try {
-      final res = await await supabase.from('ashram_requests').update(
-          {'status': status, 'volunteer_id': volunteerId}).eq('id', requestId);
+      final res = status == "delivered"
+          ? await supabase.from('ashram_requests').update({
+              'status': status,
+              'volunteer_id': volunteerId,
+              'reward_points': "50",
+            }).eq('id', requestId)
+          : await supabase.from('ashram_requests').update({
+              'status': status,
+              'volunteer_id': volunteerId,
+            }).eq('id', requestId);
 
       print("submitConfirmStatus:$res");
       print("submitConfirmStatus.runtimeType: ${res.runtimeType}");

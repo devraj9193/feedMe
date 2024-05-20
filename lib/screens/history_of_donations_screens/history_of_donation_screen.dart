@@ -46,17 +46,20 @@ class _HistoryOfDonationState extends State<HistoryOfDonation> {
       userType = _pref.getString(AppConfig.userType) ?? '';
     });
 
-    try {
-      final response = await supabase.from('ashram_requests').select('*');
-          // .eq(
-          // userType == "Donor"
-          //     ? 'donor_id'
-          //     : userType == "Volunteer"
-          //         ? 'volunteer_id'
-          //         : "ngo_id",
-          // "${_prefs?.getString(AppConfig.userId)}");
+    print("user type : $userType");
 
-      print("getDashboardNGOData : $response");
+    print("user id : ${_pref.getString(AppConfig.userId)}");
+
+    try {
+      final response = await supabase.from('ashram_requests').select('*').eq(
+          userType == "Donor"
+              ? 'donor_id'
+              : userType == "Volunteer"
+                  ? 'volunteer_id'
+                  : "ngo_id",
+          "${_pref.getString(AppConfig.userId)}");
+
+      print("History of Donation : $response");
 
       getDashboardNgoData = response;
 
@@ -202,15 +205,36 @@ class _HistoryOfDonationState extends State<HistoryOfDonation> {
                                     color: gBlackColor,
                                   ),
                                 ),
-                                Text(
-                                  "${file['food_quantity']}",
-                                  style: TextStyle(
-                                    fontSize: listSubHeadingSize,
-                                    height: 1.3,
-                                    fontFamily: listSubHeadingFont,
-                                    color: gBlackColor,
-                                  ),
+                                Row(
+                                  children: [
+                                    Image(image: const AssetImage("assets/images/medal.png"),
+                                      height: 2.h,),
+                                    // Icon(
+                                    //   Icons.timer_sharp,
+                                    //   size: 1.5.h,
+                                    //   color: gBlackColor,
+                                    // ),
+                                    SizedBox(width: 1.w),
+                                    Text(
+                                      file['reward_points'],
+                                      style: TextStyle(
+                                        fontSize: listOtherSize,
+                                        fontFamily: listOtherFont,
+                                        color: gBlackColor,
+                                      ),
+                                    ),
+                                    SizedBox(width: 3.w),
+                                  ],
                                 ),
+                                // Text(
+                                //   "${file['food_quantity']}",
+                                //   style: TextStyle(
+                                //     fontSize: listSubHeadingSize,
+                                //     height: 1.3,
+                                //     fontFamily: listSubHeadingFont,
+                                //     color: gBlackColor,
+                                //   ),
+                                // ),
                               ],
                             ),
                             SizedBox(height: 0.5.h),
@@ -247,7 +271,6 @@ class _HistoryOfDonationState extends State<HistoryOfDonation> {
                                     text: "Pickup Time : ",
                                     style: TextStyle(
                                       fontSize: 11.dp,
-                                      height: 1.5,
                                       fontFamily: kFontBook,
                                       color: gBlackColor,
                                     ),
@@ -256,7 +279,6 @@ class _HistoryOfDonationState extends State<HistoryOfDonation> {
                                     text: file['pickup_time'],
                                     style: TextStyle(
                                       fontSize: 11.dp,
-                                      height: 1.5,
                                       fontFamily: kFontBold,
                                       color: gBlackColor,
                                     ),
@@ -264,7 +286,7 @@ class _HistoryOfDonationState extends State<HistoryOfDonation> {
                                 ],
                               ),
                             ),
-                            SizedBox(height: 1.h),
+                            SizedBox(height: 0.5.h),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
@@ -289,20 +311,19 @@ class _HistoryOfDonationState extends State<HistoryOfDonation> {
                                 Row(
                                   children: [
                                     Icon(
-                                      Icons.timer_sharp,
+                                      Icons.location_on_outlined,
                                       size: 1.5.h,
                                       color: gBlackColor,
                                     ),
                                     SizedBox(width: 1.w),
                                     Text(
-                                      file['cooking_time'],
+                                      file['cooking_date'],
                                       style: TextStyle(
                                         fontSize: listOtherSize,
                                         fontFamily: listOtherFont,
                                         color: gBlackColor,
                                       ),
                                     ),
-                                    SizedBox(width: 3.w),
                                   ],
                                 ),
                               ],

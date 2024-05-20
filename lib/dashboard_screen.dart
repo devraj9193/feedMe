@@ -1,6 +1,7 @@
 import 'package:feed_me/screens/accepted_orders/accepted_orders.dart';
 import 'package:feed_me/screens/history_of_donations_screens/history_of_donation_screen.dart';
 import 'package:feed_me/screens/community_screens/community_screen.dart';
+import 'package:feed_me/screens/history_of_donations_screens/ngo_history.dart';
 import 'package:feed_me/screens/home_screens/home_screen.dart';
 import 'package:feed_me/screens/profile_screens/settings_screen.dart';
 import 'package:feed_me/utils/app_config.dart';
@@ -56,9 +57,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         }
       case 2:
         {
-          return HistoryOfDonation(
-            userType: userType.toString(),
-          );
+          return const NgoHistory();
         }
       case 3:
         {
