@@ -63,8 +63,8 @@ class _NavigationPickUpState extends State<NavigationPickUp> {
 
         navigationDonorData = response;
 
-        print("navigationAshramData : ${navigationAshramData}");
-        print("navigationDonorData : ${navigationDonorData}");
+        print("navigationAshramData : $navigationAshramData");
+        print("navigationDonorData : $navigationDonorData");
       });
     } on PostgrestException catch (error) {
       AppConfig().showSnackbar(context, error.message, isError: true);

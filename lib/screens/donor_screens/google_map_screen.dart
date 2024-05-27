@@ -117,11 +117,11 @@ class _GoogleMapScreenState extends State<GoogleMapScreen> {
                 ),
               },
               markers: {
-                // Marker(
-                //   markerId: const MarkerId("ourCurrentLocation"),
-                //   position: LatLng(
-                //       currentLocation!.latitude!, currentLocation!.longitude!),
-                // ),
+                Marker(
+                  markerId: const MarkerId("ourCurrentLocation"),
+                  position: LatLng(
+                      currentLocation!.latitude!, currentLocation!.longitude!),
+                ),
                 Marker(
                   markerId: const MarkerId("Staring point location "),
                   position:

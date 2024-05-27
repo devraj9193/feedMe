@@ -198,7 +198,7 @@ class _HistoryOfDonationState extends State<HistoryOfDonation> {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text(
-                                  file['food_items'],
+                                  file['food_items'] ?? '',
                                   style: TextStyle(
                                     fontSize: listHeadingSize,
                                     fontFamily: listHeadingFont,
@@ -216,7 +216,7 @@ class _HistoryOfDonationState extends State<HistoryOfDonation> {
                                     // ),
                                     SizedBox(width: 1.w),
                                     Text(
-                                      file['reward_points'],
+                                      file['reward_points'] ?? '',
                                       style: TextStyle(
                                         fontSize: listOtherSize,
                                         fontFamily: listOtherFont,
@@ -252,7 +252,7 @@ class _HistoryOfDonationState extends State<HistoryOfDonation> {
                                     ),
                                   ),
                                   TextSpan(
-                                    text: file['status'],
+                                    text: file['status'] ?? '',
                                     style: TextStyle(
                                       fontSize: 11.dp,
                                       height: 1.5,
@@ -276,7 +276,7 @@ class _HistoryOfDonationState extends State<HistoryOfDonation> {
                                     ),
                                   ),
                                   TextSpan(
-                                    text: file['pickup_time'],
+                                    text: file['pickup_time'] ?? '',
                                     style: TextStyle(
                                       fontSize: 11.dp,
                                       fontFamily: kFontBold,
@@ -299,7 +299,7 @@ class _HistoryOfDonationState extends State<HistoryOfDonation> {
                                     ),
                                     SizedBox(width: 1.w),
                                     Text(
-                                      file['cooking_date'],
+                                      file['cooking_date'] ?? '',
                                       style: TextStyle(
                                         fontSize: listOtherSize,
                                         fontFamily: listOtherFont,
@@ -317,7 +317,7 @@ class _HistoryOfDonationState extends State<HistoryOfDonation> {
                                     ),
                                     SizedBox(width: 1.w),
                                     Text(
-                                      file['cooking_date'],
+                                      file['cooking_date'] ?? '',
                                       style: TextStyle(
                                         fontSize: listOtherSize,
                                         fontFamily: listOtherFont,
